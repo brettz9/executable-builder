@@ -1,3 +1,7 @@
+The Firefox icon is licensed under the MPL 2.0 (see http://www.mozilla.org/MPL/2.0/ ).
+
+All other content is under:
+
 The MIT License (MIT)
 
 Copyright (c) 2014 Brett Zamir

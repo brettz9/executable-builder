@@ -1,0 +1,9 @@
+{
+  "name": "executable-builder",
+  "title": "Executable Builder",
+  "id": "jid1-sAqStbWHOMup2Q",
+  "description": "Build executables to launch files, especially for use with WebAppFind",
+  "author": "brettz9",
+  "license": "MIT",
+  "version": "0.1"
+}
