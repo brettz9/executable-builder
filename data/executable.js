@@ -214,7 +214,7 @@ Todos:
                     sel = dataset.sel,
                     type = dataset.type,
                     fileExtensionID = dataset.fileExtensionID,
-                    pathBoxSelect = dataset.pathBoxSelect,
+                    pathBoxSelect = dataset.pathBoxSelect || e.target.parentNode.dataset.pathBoxSelect,
                     pathInputID = dataset.pathInputID;
 
                 if (pathInputID) {
@@ -275,12 +275,16 @@ Todos:
                     }
                 }
                 else {
-                    switch (id) {
-                        case '':
-                            if (e.target.nodeName.toLowerCase() !== 'option' || e.target.parentNode.id !== 'iconPathSelect') {
+                    if (e.target.nodeName.toLowerCase() === 'option') {
+                        switch (e.target.parentNode.id) {
+                            case 'iconPathSelect': case 'profileNameSelect':
+                                id = e.target.parentNode.id;
                                 break;
-                            }
-                            // Fall-through
+                            default:
+                                return;
+                        }
+                    }
+                    switch (id) {
                         case 'iconPathSelect':
                             if (!val) {
                                 return;
