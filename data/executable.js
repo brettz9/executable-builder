@@ -88,11 +88,13 @@ Todos:
                     'Directory where the executable will be saved: '
                 ]],
                 // Todo: Optionally pin apps programmatically to task bar (when task bar path is chosen)
-                // Todo: (optionally?) use privileged, path-aware file-picker to allow graphical browsing of paths
                 ['input', {
                     type: 'text', id: 'pathBox' + i, list: 'datalist', autocomplete: 'off',
                     size: 100, value: '', dataset: {pathBoxInput: i}
                 }],
+                ['button', {dataset: {dirPick: i}}, [
+                    'Browse\u2026'
+                ]],
                 ' or ',
                 ['select', {dataset: {pathBoxSelect: i}}, [
                     // Todo: Change for other OSes
@@ -126,6 +128,10 @@ Todos:
     }
 
     // BEGIN EVENT ATTACHMENT
+    
+    on('openOrCreateICOResponse', function (data) {
+        alert(data);
+    });
 
     // COPIED FROM filebrowser-enhanced directoryMod.js (RETURN ALL MODIFICATIONS THERE)
     on('autocompleteValuesResponse', function (data) {
@@ -163,6 +169,12 @@ Todos:
             $('#iconPath').value = path;
         }
     });
+    
+    on('dirPickResult', function (data) {
+        if (data.path) {
+            $('#pathBox' + data.i).value = data.path;
+        }
+    });
 
     on('getHardPathsResponse', function (data) {
         paths = data;
@@ -184,7 +196,8 @@ Todos:
                 if (pathBoxInput) {
                     emit('autocompleteValues', {
                         value: val,
-                        listID: e.target.getAttribute('list')
+                        listID: e.target.getAttribute('list'),
+                        dirOnly: true
                     });
                 }
                 else if (id === 'urlBox') {
@@ -213,11 +226,16 @@ Todos:
                     id = e.target.id,
                     sel = dataset.sel,
                     type = dataset.type,
+                    dirPick = dataset.dirPick,
                     fileExtensionID = dataset.fileExtensionID,
                     pathBoxSelect = dataset.pathBoxSelect || e.target.parentNode.dataset.pathBoxSelect,
                     pathInputID = dataset.pathInputID;
 
-                if (pathInputID) {
+                if (dirPick) {
+                    // Value can be blank (if user just wishes to browse)
+                    emit('dirPick', {dirPath: $('#pathBox' + dirPick).value, i: dirPick});
+                }
+                else if (pathInputID) {
                     holderID = 'pathBoxHolder' + pathInputID;
                     parentHolderSel = '#pathHolder';
                     if (type === 'add') {
@@ -292,9 +310,8 @@ Todos:
                             $('#iconPath').value = val;
                             break;
                         case 'filePick':
-                            if ($('#iconPath').value) {
-                                emit('filePick', $('#iconPath').value);
-                            }
+                            // Value can be blank (if user just wishes to browse)
+                            emit('filePick', $('#iconPath').value);
                             break;
                         case 'openOrCreateICO':
                             emit('openOrCreateICO');
