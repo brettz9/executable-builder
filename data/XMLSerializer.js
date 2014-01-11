@@ -157,20 +157,6 @@ var XMLSerializer;
                         tagAttributes = [].slice.call(node.attributes).sort(function (attr1, attr2) {
                             return attr1.name > attr2.name ? 1 : -1;
                         });
-                        /*
-                        if (tagName === 'option' && node.getAttribute('selected')) { // This doesn't get added with setAttribute (or createAttribute) in Firefox
-                            var selectedFound;
-                            for (i = 0; i < tagAttributes.length; i++) {
-                                if (tagAttributes[i].name === 'selected') {
-                                    selectedFound = true;
-                                    break;
-                                }
-                            }
-                            if (!selectedFound) {
-                                tagAttributes.push({name: 'selected', value: 'selected'});
-                            }
-                        }
-                        */
 
                         prefix = node.prefix;
 
