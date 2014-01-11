@@ -1,4 +1,4 @@
-/*globals self, jml */
+/*globals self, jml, XMLSerializer */
 /*jslint todo:true*/
 /*
 Info:
@@ -22,7 +22,8 @@ Todos:
         console.log(msg);
     }
 
-    var body = document.querySelector('body'),
+    var lastTemplate = '',
+        body = document.querySelector('body'),
         ct = 0, ctr = 0,
         k = 0,
         profiles = [],
@@ -169,11 +170,13 @@ Todos:
             $('#iconPath').value = path;
         }
     });
-    
     on('dirPickResult', function (data) {
         if (data.path) {
             $('#pathBox' + data.i).value = data.path;
         }
+    });
+    on('saveTemplateResult', function (data) {
+        alert(data);
     });
 
     on('getHardPathsResponse', function (data) {
@@ -219,8 +222,14 @@ Todos:
                 }
             });
 
+            window.addEventListener('change', function (e) {
+                if (e.target.id === 'templates') {
+                    $('#templateName').value = lastTemplate = e.target.value;
+                }
+            });
+            
             window.addEventListener('click', function (e) {
-                var holderID, parentHolderSel, input, nextSibling, selVal,
+                var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser,
                     val = e.target.value,
                     dataset = e.target.dataset,
                     id = e.target.id,
@@ -228,7 +237,7 @@ Todos:
                     type = dataset.type,
                     dirPick = dataset.dirPick,
                     fileExtensionID = dataset.fileExtensionID,
-                    pathBoxSelect = dataset.pathBoxSelect || e.target.parentNode.dataset.pathBoxSelect,
+                    pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset.pathBoxSelect),
                     pathInputID = dataset.pathInputID;
 
                 if (dirPick) {
@@ -323,184 +332,208 @@ Todos:
                             emit('manageProfiles');
                             break;
                         case 'createExecutable':
-                            alert('sending');
+                            templateName = $('#templateName').value;
+                            if ($('#rememberTemplateChanges').value !== 'yes' ||
+                                templateName === '') {
+                                return;
+                            }
+                            if (lastTemplate !== '' &&
+                                templateName !== lastTemplate
+                            ) {
+                                // Add a file with the new template name and delete the last template file
+                                alert('changed');
+                            }
+                            else {
+                                // Save the file, over-writing any existing file
+                                ser = new XMLSerializer();
+                                ser.$formSerialize = true;
+                                emit('saveTemplate', {
+                                    fileName: templateName + '.html',
+                                    content: ser.serializeToString($('#dynamic'))
+                                });
+                            }
                             break;
                     }
                 }
             });
             document.body.appendChild(jml('div',
                 [
-                    ['select', [
-                        ['option', ['(Choose a template with which to populate this form)']]
+                    ['select', {id: 'templates'}, [
+                        ['option', {value: ''}, ['(Choose a template with which to populate this form)']],
+                        ['option', ['test1']],
+                        ['option', ['test2']]
                     ]],
                     ['label', [
-                        'Remember these settings as a template? ',
-                        ['select', [
+                        'Remember changes to this template? ',
+                        ['select', {id: 'rememberTemplateChanges'}, [
                             ['option', ['yes']],
                             ['option', ['no']]
                         ]]
                     ]],
-                    ['label', [
-                        'Template name',
-                        ['input']
-                    ]],
                     ['button', ['Clone this template']],
                     ['button', ['Delete this template']],
-                    ['br'],
-                    ['label', [
-                        'Executable name: ',
-                        ['input']
-                    ]],
-                    ['div', [
-                        ['label', {'for': 'iconPath'}, [
-                            'Icon path for the executable (optional): '
+                    ['br', 'br'],
+                    ['div', {id: 'dynamic'}, [
+                        ['label', [
+                            'Template name',
+                            ['input', {id: 'templateName'}]
                         ]],
-                        ['select', {id: 'iconPathSelect'}, [
-                            // Todo: Change for other OSes
-                            // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
-                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
-                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
-                            ['option', {value: ''}, ['(Choose a location)']],
-                            ['option', {value: getHardPath('Desk')}, ['Desktop']],
-                            ['option', {value: getHardPath('Pict')}, ['Pictures']],
-                            ['option', {value: options.ffIcon}, ['Firefox icon']]
+                        ['br'],
+                        ['label', [
+                            'Executable name: ',
+                            ['input']
                         ]],
-                        // Todo: (optionally?) use privileged, path-aware file-picker to allow graphical browsing of paths
-                        ['input', {
-                            type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
-                            size: 70, value: ''
-                        }],
-                        ['button', {id: 'filePick'}, [
-                            'Browse\u2026'
+                        ['div', [
+                            ['label', {'for': 'iconPath'}, [
+                                'Icon path for the executable (optional): '
+                            ]],
+                            ['select', {id: 'iconPathSelect'}, [
+                                // Todo: Change for other OSes
+                                // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
+                                // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
+                                // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
+                                ['option', {value: ''}, ['(Choose a location)']],
+                                ['option', {value: getHardPath('Desk')}, ['Desktop']],
+                                ['option', {value: getHardPath('Pict')}, ['Pictures']],
+                                ['option', {value: options.ffIcon}, ['Firefox icon']]
+                            ]],
+                            // Todo: (optionally?) use privileged, path-aware file-picker to allow graphical browsing of paths
+                            ['input', {
+                                type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
+                                size: 70, value: ''
+                            }],
+                            ['button', {id: 'filePick'}, [
+                                'Browse\u2026'
+                            ]],
+                            createRevealButton('#iconPath'),
+                            ' or ',
+                            /*
+                            Todo:
+                            1. Icon (Use export-as-png in SVG Edit; need filetypes.json ICO
+                            handler--allow testing by previewing as favicon)
+                                1. (Paths where to read into a list of available
+                                ico files, subject to a filetypes.json file in those
+                                directories) (might utilize those paths already added for saving)
+                                1. If filetypes.json has an icons section, use that by default instead?
+                            */
+                            ['button', {id: 'openOrCreateICO', title: 'If the ICO file at the supplied path does not exist, an empty file will be created which can then be edited. Be sure to save your changes to the ICO file when done.'}, [
+                                'Create/Edit ICO file'
+                            ]]
                         ]],
-                        createRevealButton('#iconPath'),
-                        ' or ',
+                        ['fieldset', {id: 'fileExtensionHolder'}, [
+                            ['legend', ['File extension association (optional)']],
+                            createFileExtensionControls()
+                        ]],
+                        ['div', [
+                            ['label', [
+                                ['input', {type: 'radio', name: 'executableType'}],
+                                'Open with WebAppFind?'
+                            ]],
+                            ['label', [
+                                ['input', {type: 'radio', name: 'executableType'}],
+                                'Open a hard-coded URL only?'
+                            ]],
+                            ['label', [
+                                ['input', {type: 'radio', name: 'executableType'}],
+                                'Don\'t open any URL'
+                            ]]
+                        ]],
                         /*
                         Todo:
-                        1. Icon (Use export-as-png in SVG Edit; need filetypes.json ICO
-                        handler--allow testing by previewing as favicon)
-                            1. (Paths where to read into a list of available
-                            ico files, subject to a filetypes.json file in those
-                            directories) (might utilize those paths already added for saving)
-                            1. If filetypes.json has an icons section, use that by default instead?
+                        1. Separate executables like Prism?: hard-code a profile (create one programmatically for user in
+                        an install script?) firefox.exe -no-remote -P executable http://example.com
+                        1. Whether to auto-create a new profile just for this combination of options and a
+                        -no-remote call to allow executable-like behavior (creates a separate icon instance
+                        in the task bar though not a separate icon unless, again, the icon is attached to a short cut)
                         */
-                        ['button', {id: 'openOrCreateICO', title: 'If the ICO file at the supplied path does not exist, an empty file will be created which can then be edited. Be sure to save your changes to the ICO file when done.'}, [
-                            'Create/Edit ICO file'
-                        ]]
-                    ]],
-                    ['fieldset', {id: 'fileExtensionHolder'}, [
-                        ['legend', ['File extension association (optional)']],
-                        createFileExtensionControls()
-                    ]],
-                    ['div', [
-                        ['label', [
-                            ['input', {type: 'radio', name: 'executableType'}],
-                            'Open with WebAppFind?'
+                        ['div', [
+                            ['label', {'for': 'profileName'}, [
+                                'Profile to associate with this executable (optional): '
+                            ]],
+                            ['select', {id: 'profileNameSelect'}, getProfiles()],
+                            ['input', {id: 'profileName'}],
+                            ['button', {id: 'manageProfiles'}, [
+                                'Manage profiles'
+                            ]]
                         ]],
                         ['label', [
-                            ['input', {type: 'radio', name: 'executableType'}],
-                            'Open a hard-coded URL only?'
+                            'Method: ',
+                            ['select', [
+                                ['option', {value: 'view'}, ['View']],
+                                ['option', {value: 'binaryview'}, ['Binary view']],
+                                ['option', {value: 'edit'}, ['Edit']],
+                                ['option', {value: 'binaryedit'}, ['Binary edit']]
+                            ]]
                         ]],
+                        ['br'],
+                        // Todo:
+                        ['label', ['WebAppFind preference overrides: ']],
+                        ['br'],
+                        // Creates an autocomplete for URLs
+                        // Todo:
+                        // 1. An optional, hard-coded web app URL (to circumvent the normal detection procedures and always open with a given web app)
                         ['label', [
-                            ['input', {type: 'radio', name: 'executableType'}],
-                            'Don\'t open any URL'
-                        ]]
-                    ]],
-                    /*
-                    Todo:
-                    1. Separate executables like Prism?: hard-code a profile (create one programmatically for user in
-                    an install script?) firefox.exe -no-remote -P executable http://example.com
-                    1. Whether to auto-create a new profile just for this combination of options and a
-                    -no-remote call to allow executable-like behavior (creates a separate icon instance
-                    in the task bar though not a separate icon unless, again, the icon is attached to a short cut)
-                    */
-                    ['div', [
-                        ['label', {'for': 'profileName'}, [
-                            'Profile to associate with this executable (optional): '
+                            'Hard-coded web app URI (optional): ',
+                            ['input', {
+                                type: 'url', id: 'urlBox', list: 'urlDatalist', autocomplete: 'off',
+                                size: 100, value: ''
+                            }],
+                            ['datalist', {id: 'urlDatalist'}]
                         ]],
-                        ['select', {id: 'profileNameSelect'}, getProfiles()],
-                        ['input', {id: 'profileName'}],
-                        ['button', {id: 'manageProfiles'}, [
-                            'Manage profiles'
-                        ]]
-                    ]],
-                    ['label', [
-                        'Method: ',
-                        ['select', [
-                            ['option', {value: 'view'}, ['View']],
-                            ['option', {value: 'binaryview'}, ['Binary view']],
-                            ['option', {value: 'edit'}, ['Edit']],
-                            ['option', {value: 'binaryedit'}, ['Binary edit']]
-                        ]]
-                    ]],
-                    ['br'],
-                    // Todo:
-                    ['label', ['WebAppFind preference overrides: ']],
-                    ['br'],
-                    // Creates an autocomplete for URLs
-                    // Todo:
-                    // 1. An optional, hard-coded web app URL (to circumvent the normal detection procedures and always open with a given web app)
-                    ['label', [
-                        'Hard-coded web app URI (optional): ',
-                        ['input', {
-                            type: 'url', id: 'urlBox', list: 'urlDatalist', autocomplete: 'off',
-                            size: 100, value: ''
-                        }],
-                        ['datalist', {id: 'urlDatalist'}]
-                    ]],
-                    ['br'],
-                    ['br'],
-                    // Todo: implement
-                    ['label', [
-                        'Behavior upon opening of web app/URL: ',
-                        ['select', [
-                            ['option', ['New tab']],
-                            ['option', ['New window']],
-                            ['option', ['Hidden window']]
-                        ]]
-                    ]],
-                    ['br'],
-                    //  Todo: 1. Whether web app to open by default in full-screen mode (could just let web app and user handle, but user may prefer to bake it in to a particular executable only)
-                    ['label', [
-                        'Open web app/URL by default in full-screen mode?',
-                        ['input', {type:'checkbox'}]
-                    ]],
-                    ['br'],
-                    //  Todo: 1. Batch file building section; Raw textarea (OR (only?) when webappfind is also installed...)
-                    ['label', [
-                        'Batch file commands in addition to any other options set above (optional): ',
                         ['br'],
-                        ['textarea']
-                    ]],
-                    ['br'],
-                    //  Todo: 1. Strings
-                    ['label', [
-                        'Hard-coded string to pass as content to the WebAppFind web app (optional): ',
                         ['br'],
-                        ['textarea']
-                    ]],
-                    ['br'],
-                    //  Todo: 1. JavaScript (implement with CodeMirror or option to load JS file (itself invocable with WebAppFind) instead)
-                    ['label', [
-                        'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app (optional): ',
+                        // Todo: implement
+                        ['label', [
+                            'Behavior upon opening of web app/URL: ',
+                            ['select', [
+                                ['option', ['New tab']],
+                                ['option', ['New window']],
+                                ['option', ['Hidden window']]
+                            ]]
+                        ]],
                         ['br'],
-                        ['textarea']
-                    ]],
-                    ['br'],
-                    //  Todo: 1. Arguments
-                    ['label', [
-                        'Command line arguments in addition to any other options set above (optional): ',
-                        // ['br'],
-                        ['input', {size: 100}]
-                    ]],
-                    ['fieldset', {id: 'pathHolder'}, [
-                        ['legend', ['Executable directory(ies)']],
-                        ['datalist', {id: 'datalist'}],
-                        createPathInput()
-                    ]],
-                    ['br'],
-                    ['button', {id: 'createExecutable'}, [
-                       'Create executable(s) (and a profile if specified above and not yet existing)'
+                        //  Todo: 1. Whether web app to open by default in full-screen mode (could just let web app and user handle, but user may prefer to bake it in to a particular executable only)
+                        ['label', [
+                            'Open web app/URL by default in full-screen mode?',
+                            ['input', {type:'checkbox'}]
+                        ]],
+                        ['br'],
+                        //  Todo: 1. Batch file building section; Raw textarea (OR (only?) when webappfind is also installed...)
+                        ['label', [
+                            'Batch file commands in addition to any other options set above (optional): ',
+                            ['br'],
+                            ['textarea']
+                        ]],
+                        ['br'],
+                        //  Todo: 1. Strings
+                        ['label', [
+                            'Hard-coded string to pass as content to the WebAppFind web app (optional): ',
+                            ['br'],
+                            ['textarea']
+                        ]],
+                        ['br'],
+                        //  Todo: 1. JavaScript (implement with CodeMirror or option to load JS file (itself invocable with WebAppFind) instead)
+                        ['label', [
+                            'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app (optional): ',
+                            ['br'],
+                            ['textarea']
+                        ]],
+                        ['br'],
+                        //  Todo: 1. Arguments
+                        ['label', [
+                            'Command line arguments in addition to any other options set above (optional): ',
+                            // ['br'],
+                            ['input', {size: 100}]
+                        ]],
+                        ['fieldset', {id: 'pathHolder'}, [
+                            ['legend', ['Executable directory(ies)']],
+                            ['datalist', {id: 'datalist'}],
+                            createPathInput()
+                        ]],
+                        ['br'],
+                        ['button', {id: 'createExecutable'}, [
+                           'Create executable(s) (and a profile if specified above and not yet existing)'
+                        ]]
                     ]]
                 ],
                 null
