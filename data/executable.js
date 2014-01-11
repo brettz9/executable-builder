@@ -176,7 +176,8 @@ Todos:
         }
     });
     on('saveTemplateResult', function (data) {
-        alert(data);
+        lastTemplate = data.templateName;
+        alert(data.message);
     });
 
     on('getHardPathsResponse', function (data) {
@@ -229,7 +230,7 @@ Todos:
             });
             
             window.addEventListener('click', function (e) {
-                var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser,
+                var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
                     val = e.target.value,
                     dataset = e.target.dataset,
                     id = e.target.id,
@@ -337,19 +338,25 @@ Todos:
                                 templateName === '') {
                                 return;
                             }
+                            // Save the file, over-writing any existing file
+                            ser = new XMLSerializer();
+                            ser.$formSerialize = true;
+                            content = ser.serializeToString($('#dynamic'));
+
                             if (lastTemplate !== '' &&
                                 templateName !== lastTemplate
                             ) {
                                 // Add a file with the new template name and delete the last template file
-                                alert('changed');
+                                emit('saveTemplate', {
+                                    fileName: templateName,
+                                    content: content,
+                                    lastTemplate: lastTemplate
+                                });
                             }
                             else {
-                                // Save the file, over-writing any existing file
-                                ser = new XMLSerializer();
-                                ser.$formSerialize = true;
                                 emit('saveTemplate', {
-                                    fileName: templateName + '.html',
-                                    content: ser.serializeToString($('#dynamic'))
+                                    fileName: templateName,
+                                    content: content
                                 });
                             }
                             break;
