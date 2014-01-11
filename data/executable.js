@@ -21,6 +21,11 @@ Todos:
     function l (msg) {
         console.log(msg);
     }
+    if (document.querySelector('body') && document.querySelector('body').innerHTML.match(/\S/)) { // Don't add page (or its listeners) more than once
+        // l(body.innerHTML);
+        alert('already a body');
+        return;
+    }
 
     var body = document.querySelector('body'),
         ct = 0, ctr = 0,
@@ -31,13 +36,13 @@ Todos:
         emit = self.port.emit,
         options = self.options;
 
-    if (body && body.innerHTML.match(/\S/)) { // Don't add page (or its listeners) more than once
-        // l(body.innerHTML);
-        return;
-    }
-
     function $ (sel) {
         return document.querySelector(sel);
+    }
+    function templateExistsInMenu (val) {
+        return [].slice.call($('#templates')).some(function (option) {
+            return option.text === val;
+        });
     }
     function getHardPath (dir) {
         return paths[dir];
@@ -161,6 +166,14 @@ Todos:
             datalist.appendChild(option);
         });
     });
+    
+    on('deleteTemplateResponse', function (data) {
+        $('#templates').remove([].slice.call($('#templates')).findIndex(function (option) {
+            return option.text === data.fileName;
+        }));
+        
+        alert(data.message);
+    });
 
     on('filePickResult', function (path) {
         if (path) {
@@ -173,370 +186,391 @@ Todos:
         }
     });
     on('saveTemplateResult', function (data) {
-        // data.templateName
+        if (!templateExistsInMenu(data.templateName)) {
+            $('#templates').add(jml('option', [data.templateName]));
+        }
         alert(data.message);
     });
+    
+    function init (templates) {
+        
+        window.addEventListener('input', function (e) {
+            var id = e.target.id,
+                val = e.target.value,
+                dataset = e.target.dataset,
+                pathBoxInput = dataset.pathBoxInput;
 
-    on('getHardPathsResponse', function (data) {
-        paths = data;
-        // Adapted from filebrowser-enhanced directoryMod.js (RETURN ALL RELEVANT MODIFICATIONS THERE)
-        on('getProfilesResponse', function (profileData) {
-            profiles = profileData;
-            /*while (body.firstChild) {
-                body.removeChild(body.firstChild);
-            }*/
-            window.addEventListener('input', function (e) {
-                var id = e.target.id,
-                    val = e.target.value,
-                    dataset = e.target.dataset,
-                    pathBoxInput = dataset.pathBoxInput;
+            if (!val) {
+                return;
+            }
+            if (pathBoxInput) {
+                emit('autocompleteValues', {
+                    value: val,
+                    listID: e.target.getAttribute('list'),
+                    dirOnly: true
+                });
+            }
+            else if (id === 'urlBox') {
+                /*
+                if (val.length < 9) { // http://.
+                    return;
+                }
+                */
+                emit('autocompleteURLHistory', {
+                    value: val,
+                    listID: e.target.getAttribute('list')
+                });
+            }
+            else if (id === 'iconPath') {
+                emit('autocompleteValues', {
+                    value: val,
+                    listID: e.target.getAttribute('list')
+                });
+            }
+        });
 
+        window.addEventListener('change', function (e) {
+            var val = e.target.value;
+            if (e.target.id === 'templateName') {
+                if ($('#rememberTemplateChanges').checked &&
+                    templateExistsInMenu(val)
+                ) {
+                    if (!confirm('You have chosen a template which already exists, so any saves you make with this name will overwrite its contents with the updates made below. Continue?')) {
+                        e.target.value = '';
+                        return;
+                    }
+                }
+            }
+            else if (e.target.id === 'templates') {
+                $('#templateName').value = val;
+            }
+        });
+        
+        window.addEventListener('click', function (e) {
+            var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
+                val = e.target.value,
+                dataset = e.target.dataset,
+                id = e.target.id,
+                sel = dataset.sel,
+                type = dataset.type,
+                dirPick = dataset.dirPick,
+                fileExtensionID = dataset.fileExtensionID,
+                pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset.pathBoxSelect),
+                pathInputID = dataset.pathInputID;
+
+            if (dirPick) {
+                // Value can be blank (if user just wishes to browse)
+                emit('dirPick', {dirPath: $('#pathBox' + dirPick).value, i: dirPick});
+            }
+            else if (pathInputID) {
+                holderID = 'pathBoxHolder' + pathInputID;
+                parentHolderSel = '#pathHolder';
+                if (type === 'add') {
+                    input = jml.apply(null, createPathInput());
+                    nextSibling = $('#' + holderID).nextElementSibling;
+                    if (nextSibling) {
+                        $(parentHolderSel).insertBefore(input, nextSibling);
+                    }
+                    else {
+                        $(parentHolderSel).appendChild(input);
+                    }
+                }
+                else if (type === 'remove') {
+                    if ($(parentHolderSel).children.length <= 3) { // Legend, datalist, and a single path control
+                        return;
+                    }
+                    $('#' + holderID).parentNode.removeChild($('#' + holderID));
+                }
+            }
+            else if (pathBoxSelect) {
                 if (!val) {
                     return;
                 }
-                if (pathBoxInput) {
-                    emit('autocompleteValues', {
-                        value: val,
-                        listID: e.target.getAttribute('list'),
-                        dirOnly: true
-                    });
+                $('#pathBox' + pathBoxSelect).value = val;
+            }
+            else if (fileExtensionID) {
+                holderID = 'fileExtensionInfoHolder' + fileExtensionID;
+                parentHolderSel = '#fileExtensionHolder';
+                if (type === 'add') {
+                    input = jml.apply(null, createFileExtensionControls());
+                    nextSibling = $('#' + holderID).nextElementSibling;
+                    if (nextSibling) {
+                        $(parentHolderSel).insertBefore(input, nextSibling);
+                    }
+                    else {
+                        $(parentHolderSel).appendChild(input);
+                    }
                 }
-                else if (id === 'urlBox') {
-                    /*
-                    if (val.length < 9) { // http://.
+                else if (type === 'remove') {
+                    if ($(parentHolderSel).children.length <= 2) { // Legend and a single path control
                         return;
                     }
-                    */
-                    emit('autocompleteURLHistory', {
-                        value: val,
-                        listID: e.target.getAttribute('list')
-                    });
+                    $('#' + holderID).parentNode.removeChild($('#' + holderID));
                 }
-                else if (id === 'iconPath') {
-                    emit('autocompleteValues', {
-                        value: val,
-                        listID: e.target.getAttribute('list')
-                    });
+            }
+            else if (sel) {
+                selVal = $(sel).value;
+                if (selVal.match(/^resource:/)) {
+                    selVal = selVal.substring(0, selVal.lastIndexOf('/') + 1);
+                    window.open(selVal, 'resource' + (k++));
+                    return;
                 }
-            });
-
-            window.addEventListener('change', function (e) {
-                var val = e.target.value;
-                if (e.target.id === 'templateName') {
-                    if ($('#rememberTemplateChanges').checked &&
-                        [].slice.call($('#templates')).some(function (option) {
-                            return option.text === val;
-                        })
-                    ) {
-                        if (!confirm('You have chosen a template which already exists, so any saves you make with this name will overwrite its contents with the updates made below. Continue?')) {
-                            e.target.value = '';
+                if (selVal) {
+                    emit('reveal', selVal);
+                }
+            }
+            else {
+                if (e.target.nodeName.toLowerCase() === 'option') {
+                    switch (e.target.parentNode.id) {
+                        case 'iconPathSelect': case 'profileNameSelect':
+                            id = e.target.parentNode.id;
+                            break;
+                        default:
+                            return;
+                    }
+                }
+                switch (id) {
+                    case 'deleteTemplate':
+                        val = $('#templates').selectedOptions[0].value;
+                        if (!val) {
+                            alert("In order to delete a template, you must choose one in the pull-down");
                             return;
                         }
-                    }
-                }
-                else if (e.target.id === 'templates') {
-                    $('#templateName').value = val;
-                }
-            });
-            
-            window.addEventListener('click', function (e) {
-                var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                    val = e.target.value,
-                    dataset = e.target.dataset,
-                    id = e.target.id,
-                    sel = dataset.sel,
-                    type = dataset.type,
-                    dirPick = dataset.dirPick,
-                    fileExtensionID = dataset.fileExtensionID,
-                    pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset.pathBoxSelect),
-                    pathInputID = dataset.pathInputID;
-
-                if (dirPick) {
-                    // Value can be blank (if user just wishes to browse)
-                    emit('dirPick', {dirPath: $('#pathBox' + dirPick).value, i: dirPick});
-                }
-                else if (pathInputID) {
-                    holderID = 'pathBoxHolder' + pathInputID;
-                    parentHolderSel = '#pathHolder';
-                    if (type === 'add') {
-                        input = jml.apply(null, createPathInput());
-                        nextSibling = $('#' + holderID).nextElementSibling;
-                        if (nextSibling) {
-                            $(parentHolderSel).insertBefore(input, nextSibling);
-                        }
-                        else {
-                            $(parentHolderSel).appendChild(input);
-                        }
-                    }
-                    else if (type === 'remove') {
-                        if ($(parentHolderSel).children.length <= 3) { // Legend, datalist, and a single path control
+                        emit('deleteTemplate', {fileName: val});
+                        break;
+                    case 'iconPathSelect':
+                        if (!val) {
                             return;
                         }
-                        $('#' + holderID).parentNode.removeChild($('#' + holderID));
-                    }
-                }
-                else if (pathBoxSelect) {
-                    if (!val) {
-                        return;
-                    }
-                    $('#pathBox' + pathBoxSelect).value = val;
-                }
-                else if (fileExtensionID) {
-                    holderID = 'fileExtensionInfoHolder' + fileExtensionID;
-                    parentHolderSel = '#fileExtensionHolder';
-                    if (type === 'add') {
-                        input = jml.apply(null, createFileExtensionControls());
-                        nextSibling = $('#' + holderID).nextElementSibling;
-                        if (nextSibling) {
-                            $(parentHolderSel).insertBefore(input, nextSibling);
-                        }
-                        else {
-                            $(parentHolderSel).appendChild(input);
-                        }
-                    }
-                    else if (type === 'remove') {
-                        if ($(parentHolderSel).children.length <= 2) { // Legend and a single path control
+                        $('#iconPath').value = val;
+                        break;
+                    case 'filePick':
+                        // Value can be blank (if user just wishes to browse)
+                        emit('filePick', $('#iconPath').value);
+                        break;
+                    case 'openOrCreateICO':
+                        emit('openOrCreateICO');
+                        break;
+                    case 'profileNameSelect':
+                        $('#profileName').value = val;
+                        break;
+                    case 'manageProfiles':
+                        emit('manageProfiles');
+                        break;
+                    case 'createExecutable':
+                        templateName = $('#templateName').value;
+                        if (!$('#rememberTemplateChanges').checked ||
+                            templateName === '') {
                             return;
                         }
-                        $('#' + holderID).parentNode.removeChild($('#' + holderID));
-                    }
-                }
-                else if (sel) {
-                    selVal = $(sel).value;
-                    if (selVal.match(/^resource:/)) {
-                        selVal = selVal.substring(0, selVal.lastIndexOf('/') + 1);
-                        window.open(selVal, 'resource' + (k++));
-                        return;
-                    }
-                    if (selVal) {
-                        emit('reveal', selVal);
-                    }
-                }
-                else {
-                    if (e.target.nodeName.toLowerCase() === 'option') {
-                        switch (e.target.parentNode.id) {
-                            case 'iconPathSelect': case 'profileNameSelect':
-                                id = e.target.parentNode.id;
-                                break;
-                            default:
-                                return;
-                        }
-                    }
-                    switch (id) {
-                        case 'iconPathSelect':
-                            if (!val) {
-                                return;
-                            }
-                            $('#iconPath').value = val;
-                            break;
-                        case 'filePick':
-                            // Value can be blank (if user just wishes to browse)
-                            emit('filePick', $('#iconPath').value);
-                            break;
-                        case 'openOrCreateICO':
-                            emit('openOrCreateICO');
-                            break;
-                        case 'profileNameSelect':
-                            $('#profileName').value = val;
-                            break;
-                        case 'manageProfiles':
-                            emit('manageProfiles');
-                            break;
-                        case 'createExecutable':
-                            templateName = $('#templateName').value;
-                            if (!$('#rememberTemplateChanges').checked ||
-                                templateName === '') {
-                                return;
-                            }
-                            // Save the file, over-writing any existing file
-                            ser = new XMLSerializer();
-                            ser.$formSerialize = true;
-                            content = ser.serializeToString($('#dynamic'));
+                        // Save the file, over-writing any existing file
+                        ser = new XMLSerializer();
+                        ser.$formSerialize = true;
+                        content = ser.serializeToString($('#dynamic'));
 
-                            emit('saveTemplate', {
-                                fileName: templateName,
-                                content: content
-                            });
-                            break;
-                    }
+                        emit('saveTemplate', {
+                            fileName: templateName,
+                            content: content
+                        });
+                        break;
                 }
-            });
-            document.body.appendChild(jml('div',
-                [
-                    ['select', {id: 'templates'}, [
+            }
+        });
+        document.body.appendChild(jml('div',
+            [
+                ['select', {id: 'templates'},
+                    templates.reduce(function (opts, template) {
+                        opts.push(['option', [template]]);
+                        return opts;
+                    }, [
                         ['option', {value: ''}, ['(Choose a template with which to populate this form)']]
-                    ]],
-                    ['button', ['Delete this template']],
-                    ['br', 'br'],
+                    ])
+                ],
+                ['button', {id: 'deleteTemplate'}, ['Delete this template']],
+                ['br', 'br'],
+                ['label', [
+                    'Remember changes to this template\'s content? ',
+                    ['input', {id: 'rememberTemplateChanges', type: 'checkbox', checked: 'checked'}]
+                ]],
+                ['br', 'br'],
+                ['div', {id: 'dynamic'}, [
                     ['label', [
-                        'Remember changes to this template\'s content? ',
-                        ['input', {id: 'rememberTemplateChanges', type: 'checkbox', checked: 'checked'}]
+                        'Template name',
+                        ['input', {id: 'templateName'}]
                     ]],
-                    ['br', 'br'],
-                    ['div', {id: 'dynamic'}, [
-                        ['label', [
-                            'Template name',
-                            ['input', {id: 'templateName'}]
+                    ['br'],
+                    ['label', [
+                        'Executable name: ',
+                        ['input']
+                    ]],
+                    ['div', [
+                        ['label', {'for': 'iconPath'}, [
+                            'Icon path for the executable (optional): '
                         ]],
-                        ['br'],
-                        ['label', [
-                            'Executable name: ',
-                            ['input']
+                        ['select', {id: 'iconPathSelect'}, [
+                            // Todo: Change for other OSes
+                            // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
+                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
+                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
+                            ['option', {value: ''}, ['(Choose a location)']],
+                            ['option', {value: getHardPath('Desk')}, ['Desktop']],
+                            ['option', {value: getHardPath('Pict')}, ['Pictures']],
+                            ['option', {value: options.ffIcon}, ['Firefox icon']]
                         ]],
-                        ['div', [
-                            ['label', {'for': 'iconPath'}, [
-                                'Icon path for the executable (optional): '
-                            ]],
-                            ['select', {id: 'iconPathSelect'}, [
-                                // Todo: Change for other OSes
-                                // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
-                                // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
-                                // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
-                                ['option', {value: ''}, ['(Choose a location)']],
-                                ['option', {value: getHardPath('Desk')}, ['Desktop']],
-                                ['option', {value: getHardPath('Pict')}, ['Pictures']],
-                                ['option', {value: options.ffIcon}, ['Firefox icon']]
-                            ]],
-                            ['input', {
-                                type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
-                                size: 70, value: ''
-                            }],
-                            ['button', {id: 'filePick'}, [
-                                'Browse\u2026'
-                            ]],
-                            createRevealButton('#iconPath'),
-                            ' or ',
-                            /*
-                            Todo:
-                            1. Icon (Use export-as-png in SVG Edit; need filetypes.json ICO
-                            handler--allow testing by previewing as favicon)
-                                1. (Paths where to read into a list of available
-                                ico files, subject to a filetypes.json file in those
-                                directories) (might utilize those paths already added for saving)
-                                1. If filetypes.json has an icons section, use that by default instead?
-                            */
-                            ['button', {id: 'openOrCreateICO', title: 'If the ICO file at the supplied path does not exist, an empty file will be created which can then be edited. Be sure to save your changes to the ICO file when done.'}, [
-                                'Create/Edit ICO file'
-                            ]]
+                        ['input', {
+                            type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
+                            size: 70, value: ''
+                        }],
+                        ['button', {id: 'filePick'}, [
+                            'Browse\u2026'
                         ]],
-                        ['fieldset', {id: 'fileExtensionHolder'}, [
-                            ['legend', ['File extension association (optional)']],
-                            createFileExtensionControls()
-                        ]],
-                        ['div', [
-                            ['label', [
-                                ['input', {type: 'radio', name: 'executableType'}],
-                                'Open with WebAppFind?'
-                            ]],
-                            ['label', [
-                                ['input', {type: 'radio', name: 'executableType'}],
-                                'Open a hard-coded URL only?'
-                            ]],
-                            ['label', [
-                                ['input', {type: 'radio', name: 'executableType'}],
-                                'Don\'t open any URL'
-                            ]]
-                        ]],
+                        createRevealButton('#iconPath'),
+                        ' or ',
                         /*
                         Todo:
-                        1. Separate executables like Prism?: hard-code a profile (create one programmatically for user in
-                        an install script?) firefox.exe -no-remote -P executable http://example.com
-                        1. Whether to auto-create a new profile just for this combination of options and a
-                        -no-remote call to allow executable-like behavior (creates a separate icon instance
-                        in the task bar though not a separate icon unless, again, the icon is attached to a short cut)
+                        1. Icon (Use export-as-png in SVG Edit; need filetypes.json ICO
+                        handler--allow testing by previewing as favicon)
+                            1. (Paths where to read into a list of available
+                            ico files, subject to a filetypes.json file in those
+                            directories) (might utilize those paths already added for saving)
+                            1. If filetypes.json has an icons section, use that by default instead?
                         */
-                        ['div', [
-                            ['label', {'for': 'profileName'}, [
-                                'Profile to associate with this executable (optional): '
-                            ]],
-                            ['select', {id: 'profileNameSelect'}, getProfiles()],
-                            ['input', {id: 'profileName'}],
-                            ['button', {id: 'manageProfiles'}, [
-                                'Manage profiles'
-                            ]]
-                        ]],
-                        ['label', [
-                            'Method: ',
-                            ['select', [
-                                ['option', {value: 'view'}, ['View']],
-                                ['option', {value: 'binaryview'}, ['Binary view']],
-                                ['option', {value: 'edit'}, ['Edit']],
-                                ['option', {value: 'binaryedit'}, ['Binary edit']]
-                            ]]
-                        ]],
-                        ['br'],
-                        // Todo:
-                        ['label', ['WebAppFind preference overrides: ']],
-                        ['br'],
-                        // Creates an autocomplete for URLs
-                        // Todo:
-                        // 1. An optional, hard-coded web app URL (to circumvent the normal detection procedures and always open with a given web app)
-                        ['label', [
-                            'Hard-coded web app URI (optional): ',
-                            ['input', {
-                                type: 'url', id: 'urlBox', list: 'urlDatalist', autocomplete: 'off',
-                                size: 100, value: ''
-                            }],
-                            ['datalist', {id: 'urlDatalist'}]
-                        ]],
-                        ['br'],
-                        ['br'],
-                        // Todo: implement
-                        ['label', [
-                            'Behavior upon opening of web app/URL: ',
-                            ['select', [
-                                ['option', ['New tab']],
-                                ['option', ['New window']],
-                                ['option', ['Hidden window']]
-                            ]]
-                        ]],
-                        ['br'],
-                        //  Todo: 1. Whether web app to open by default in full-screen mode (could just let web app and user handle, but user may prefer to bake it in to a particular executable only)
-                        ['label', [
-                            'Open web app/URL by default in full-screen mode?',
-                            ['input', {type:'checkbox'}]
-                        ]],
-                        ['br'],
-                        //  Todo: 1. Batch file building section; Raw textarea (OR (only?) when webappfind is also installed...)
-                        ['label', [
-                            'Batch file commands in addition to any other options set above (optional): ',
-                            ['br'],
-                            ['textarea']
-                        ]],
-                        ['br'],
-                        //  Todo: 1. Strings
-                        ['label', [
-                            'Hard-coded string to pass as content to the WebAppFind web app (optional): ',
-                            ['br'],
-                            ['textarea']
-                        ]],
-                        ['br'],
-                        //  Todo: 1. JavaScript (implement with CodeMirror or option to load JS file (itself invocable with WebAppFind) instead)
-                        ['label', [
-                            'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app (optional): ',
-                            ['br'],
-                            ['textarea']
-                        ]],
-                        ['br'],
-                        //  Todo: 1. Arguments
-                        ['label', [
-                            'Command line arguments in addition to any other options set above (optional): ',
-                            // ['br'],
-                            ['input', {size: 100}]
-                        ]],
-                        ['fieldset', {id: 'pathHolder'}, [
-                            ['legend', ['Executable directory(ies)']],
-                            ['datalist', {id: 'datalist'}],
-                            createPathInput()
-                        ]],
-                        ['br'],
-                        ['button', {id: 'createExecutable'}, [
-                           'Create executable(s) (and a profile if specified above and not yet existing)'
+                        ['button', {id: 'openOrCreateICO', title: 'If the ICO file at the supplied path does not exist, an empty file will be created which can then be edited. Be sure to save your changes to the ICO file when done.'}, [
+                            'Create/Edit ICO file'
                         ]]
+                    ]],
+                    ['fieldset', {id: 'fileExtensionHolder'}, [
+                        ['legend', ['File extension association (optional)']],
+                        createFileExtensionControls()
+                    ]],
+                    ['div', [
+                        ['label', [
+                            ['input', {type: 'radio', name: 'executableType'}],
+                            'Open with WebAppFind?'
+                        ]],
+                        ['label', [
+                            ['input', {type: 'radio', name: 'executableType'}],
+                            'Open a hard-coded URL only?'
+                        ]],
+                        ['label', [
+                            ['input', {type: 'radio', name: 'executableType'}],
+                            'Don\'t open any URL'
+                        ]]
+                    ]],
+                    /*
+                    Todo:
+                    1. Separate executables like Prism?: hard-code a profile (create one programmatically for user in
+                    an install script?) firefox.exe -no-remote -P executable http://example.com
+                    1. Whether to auto-create a new profile just for this combination of options and a
+                    -no-remote call to allow executable-like behavior (creates a separate icon instance
+                    in the task bar though not a separate icon unless, again, the icon is attached to a short cut)
+                    */
+                    ['div', [
+                        ['label', {'for': 'profileName'}, [
+                            'Profile to associate with this executable (optional): '
+                        ]],
+                        ['select', {id: 'profileNameSelect'}, getProfiles()],
+                        ['input', {id: 'profileName'}],
+                        ['button', {id: 'manageProfiles'}, [
+                            'Manage profiles'
+                        ]]
+                    ]],
+                    ['label', [
+                        'Method: ',
+                        ['select', [
+                            ['option', {value: 'view'}, ['View']],
+                            ['option', {value: 'binaryview'}, ['Binary view']],
+                            ['option', {value: 'edit'}, ['Edit']],
+                            ['option', {value: 'binaryedit'}, ['Binary edit']]
+                        ]]
+                    ]],
+                    ['br'],
+                    // Todo:
+                    ['label', ['WebAppFind preference overrides: ']],
+                    ['br'],
+                    // Creates an autocomplete for URLs
+                    // Todo:
+                    // 1. An optional, hard-coded web app URL (to circumvent the normal detection procedures and always open with a given web app)
+                    ['label', [
+                        'Hard-coded web app URI (optional): ',
+                        ['input', {
+                            type: 'url', id: 'urlBox', list: 'urlDatalist', autocomplete: 'off',
+                            size: 100, value: ''
+                        }],
+                        ['datalist', {id: 'urlDatalist'}]
+                    ]],
+                    ['br'],
+                    ['br'],
+                    // Todo: implement
+                    ['label', [
+                        'Behavior upon opening of web app/URL: ',
+                        ['select', [
+                            ['option', ['New tab']],
+                            ['option', ['New window']],
+                            ['option', ['Hidden window']]
+                        ]]
+                    ]],
+                    ['br'],
+                    //  Todo: 1. Whether web app to open by default in full-screen mode (could just let web app and user handle, but user may prefer to bake it in to a particular executable only)
+                    ['label', [
+                        'Open web app/URL by default in full-screen mode?',
+                        ['input', {type:'checkbox'}]
+                    ]],
+                    ['br'],
+                    //  Todo: 1. Batch file building section; Raw textarea (OR (only?) when webappfind is also installed...)
+                    ['label', [
+                        'Batch file commands in addition to any other options set above (optional): ',
+                        ['br'],
+                        ['textarea']
+                    ]],
+                    ['br'],
+                    //  Todo: 1. Strings
+                    ['label', [
+                        'Hard-coded string to pass as content to the WebAppFind web app (optional): ',
+                        ['br'],
+                        ['textarea']
+                    ]],
+                    ['br'],
+                    //  Todo: 1. JavaScript (implement with CodeMirror or option to load JS file (itself invocable with WebAppFind) instead)
+                    ['label', [
+                        'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app (optional): ',
+                        ['br'],
+                        ['textarea']
+                    ]],
+                    ['br'],
+                    //  Todo: 1. Arguments
+                    ['label', [
+                        'Command line arguments in addition to any other options set above (optional): ',
+                        // ['br'],
+                        ['input', {size: 100}]
+                    ]],
+                    ['fieldset', {id: 'pathHolder'}, [
+                        ['legend', ['Executable directory(ies)']],
+                        ['datalist', {id: 'datalist'}],
+                        createPathInput()
+                    ]],
+                    ['br'],
+                    ['button', {id: 'createExecutable'}, [
+                       'Create executable(s) (and a profile if specified above and not yet existing)'
                     ]]
-                ],
-                null
-            ));
+                ]]
+            ],
+            null
+        ));
+    }
+    
+    // We could abstract this, but it's light enough for now to keep flexible
+    on('getHardPathsResponse', function (pathData) {
+        paths = pathData;
+        on('getProfilesResponse', function (profileData) {
+            profiles = profileData;
+            on('getTemplatesResponse', function (templateData) {
+                while (document.body.firstChild) {
+                    document.body.removeChild(document.body.firstChild);
+                }
+                init(templateData);
+            });
+            emit('getTemplates');
         });
         emit('getProfiles');
     });
