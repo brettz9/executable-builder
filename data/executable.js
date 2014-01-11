@@ -222,9 +222,9 @@ Todos:
 
             window.addEventListener('change', function (e) {
                 var val = e.target.value;
-                if (e.target.id === 'templates') {
+                if (e.target.id === 'templateName') {
                     if ($('#rememberTemplateChanges').checked &&
-                        [].slice.call(e.target.options).some(function (option) {
+                        [].slice.call($('#templates')).some(function (option) {
                             return option.text === val;
                         })
                     ) {
@@ -233,6 +233,8 @@ Todos:
                             return;
                         }
                     }
+                }
+                else if (e.target.id === 'templates') {
                     $('#templateName').value = val;
                 }
             });
