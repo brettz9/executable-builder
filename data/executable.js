@@ -22,8 +22,7 @@ Todos:
         console.log(msg);
     }
 
-    var lastTemplate = '',
-        body = document.querySelector('body'),
+    var body = document.querySelector('body'),
         ct = 0, ctr = 0,
         k = 0,
         profiles = [],
@@ -106,9 +105,7 @@ Todos:
                     ['option', {value: getHardPath('Desk')}, ['Desktop']],
                     ['option', {value: getHardPath('Strt')}, ['Start-up']],
                     ['option', {value: getHardPath('Progs')}, ['Start menu']],
-                    ['option', {value: getHardPath('AppData') + '\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar'},
-                        ['Task bar']
-                    ]
+                    ['option', {value: getHardPath('TaskBar')}, ['Task bar']]
                 ]],
                 createRevealButton('#pathBox' + i),
                 ['button', {dataset: {pathInputID: i, type: 'add'}}, [
@@ -176,7 +173,7 @@ Todos:
         }
     });
     on('saveTemplateResult', function (data) {
-        lastTemplate = data.templateName;
+        // data.templateName
         alert(data.message);
     });
 
@@ -224,8 +221,19 @@ Todos:
             });
 
             window.addEventListener('change', function (e) {
+                var val = e.target.value;
                 if (e.target.id === 'templates') {
-                    $('#templateName').value = lastTemplate = e.target.value;
+                    if ($('#rememberTemplateChanges').checked &&
+                        [].slice.call(e.target.options).some(function (option) {
+                            return option.text === val;
+                        })
+                    ) {
+                        if (!confirm('You have chosen a template which already exists, so any saves you make with this name will overwrite its contents with the updates made below. Continue?')) {
+                            e.target.value = '';
+                            return;
+                        }
+                    }
+                    $('#templateName').value = val;
                 }
             });
             
@@ -334,7 +342,7 @@ Todos:
                             break;
                         case 'createExecutable':
                             templateName = $('#templateName').value;
-                            if ($('#rememberTemplateChanges').value !== 'yes' ||
+                            if (!$('#rememberTemplateChanges').checked ||
                                 templateName === '') {
                                 return;
                             }
@@ -343,22 +351,10 @@ Todos:
                             ser.$formSerialize = true;
                             content = ser.serializeToString($('#dynamic'));
 
-                            if (lastTemplate !== '' &&
-                                templateName !== lastTemplate
-                            ) {
-                                // Add a file with the new template name and delete the last template file
-                                emit('saveTemplate', {
-                                    fileName: templateName,
-                                    content: content,
-                                    lastTemplate: lastTemplate
-                                });
-                            }
-                            else {
-                                emit('saveTemplate', {
-                                    fileName: templateName,
-                                    content: content
-                                });
-                            }
+                            emit('saveTemplate', {
+                                fileName: templateName,
+                                content: content
+                            });
                             break;
                     }
                 }
@@ -366,19 +362,14 @@ Todos:
             document.body.appendChild(jml('div',
                 [
                     ['select', {id: 'templates'}, [
-                        ['option', {value: ''}, ['(Choose a template with which to populate this form)']],
-                        ['option', ['test1']],
-                        ['option', ['test2']]
+                        ['option', {value: ''}, ['(Choose a template with which to populate this form)']]
                     ]],
-                    ['label', [
-                        'Remember changes to this template? ',
-                        ['select', {id: 'rememberTemplateChanges'}, [
-                            ['option', ['yes']],
-                            ['option', ['no']]
-                        ]]
-                    ]],
-                    ['button', ['Clone this template']],
                     ['button', ['Delete this template']],
+                    ['br', 'br'],
+                    ['label', [
+                        'Remember changes to this template\'s content? ',
+                        ['input', {id: 'rememberTemplateChanges', type: 'checkbox', checked: 'checked'}]
+                    ]],
                     ['br', 'br'],
                     ['div', {id: 'dynamic'}, [
                         ['label', [
@@ -404,7 +395,6 @@ Todos:
                                 ['option', {value: getHardPath('Pict')}, ['Pictures']],
                                 ['option', {value: options.ffIcon}, ['Firefox icon']]
                             ]],
-                            // Todo: (optionally?) use privileged, path-aware file-picker to allow graphical browsing of paths
                             ['input', {
                                 type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
                                 size: 70, value: ''
