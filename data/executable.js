@@ -171,8 +171,13 @@ Todos:
         $('#templates').remove([].slice.call($('#templates')).findIndex(function (option) {
             return option.text === data.fileName;
         }));
-        
         alert(data.message);
+    });
+    
+    on('getTemplateResponse', function (data) {
+        var dom = new DOMParser().parseFromString(data.content, 'application/xhtml+xml');
+        // dom.documentElement.cloneNode(true);
+        $('#dynamic').parentNode.replaceChild(dom.documentElement, $('#dynamic'));
     });
 
     on('filePickResult', function (path) {
@@ -242,7 +247,8 @@ Todos:
                 }
             }
             else if (e.target.id === 'templates') {
-                $('#templateName').value = val;
+                // $('#templateName').value = val;
+                emit('getTemplate', {fileName: val});
             }
         });
         
@@ -255,7 +261,7 @@ Todos:
                 type = dataset.type,
                 dirPick = dataset.dirPick,
                 fileExtensionID = dataset.fileExtensionID,
-                pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset.pathBoxSelect),
+                pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset && e.target.parentNode.dataset.pathBoxSelect),
                 pathInputID = dataset.pathInputID;
 
             if (dirPick) {
