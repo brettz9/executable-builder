@@ -59,16 +59,16 @@ Todos:
     }
     function createFileExtensionControls () {
         // Todo: File extensions for association (also ask "default?"): .....   (checkbox on whether to make as default (or only use with open with...))
-        var i = ctr++;
+        var i = ++ctr;
         return ['div', {id: 'fileExtensionInfoHolder' + i}, [
             ['label', [
                 'File extension to associate with this executable: ',
-                ['input', {size: 10}]
+                ['input', {size: 10, 'class': 'fileExtension'}]
             ]],
             ' \u00a0 ',
             ['label', [
                 'Make the default execution handler for files with this extension?',
-                ['input', {type: 'checkbox'}]
+                ['input', {type: 'checkbox', 'class': 'defaultFileExtension'}]
             ]],
             ['button', {dataset: {fileExtensionID: i, type: 'add'}}, [
                 '+'
@@ -86,16 +86,22 @@ Todos:
     * does auto-complete for paths.
     */
     function createPathInput() {
-        var i = ct++;
+        var i = ++ct;
         return [
             'div', {id: 'pathBoxHolder' + i}, [
+                ['label', [
+                    'Executable name: ',
+                    ['input', {required: 'true', 'class': 'executableName'}]
+                ]],
+                ['br'],
                 ['label', {'for': 'pathBox' + i}, [
                     'Directory where the executable will be saved: '
                 ]],
                 // Todo: Optionally pin apps programmatically to task bar (when task bar path is chosen)
                 ['input', {
                     type: 'text', id: 'pathBox' + i, list: 'datalist', autocomplete: 'off',
-                    size: 100, value: '', dataset: {pathBoxInput: i}
+                    required: 'true', size: 100, value: '', dataset: {pathBoxInput: i},
+                    'class': 'dirPath'
                 }],
                 ['button', {dataset: {dirPick: i}}, [
                     'Browse\u2026'
@@ -118,7 +124,8 @@ Todos:
                 ]],
                 ['button', {dataset: {pathInputID: i, type: 'remove'}}, [
                     '-'
-                ]]
+                ]],
+                ['hr']
             ]
         ];
     }
@@ -364,20 +371,47 @@ Todos:
                         emit('manageProfiles');
                         break;
                     case 'createExecutable':
-                        templateName = $('#templateName').value;
-                        if (!$('#rememberTemplateChanges').checked ||
-                            templateName === '') {
+                        // Todo: Auto-name executable and auto-add path by default
+                        if (!$('.executableName').value) {
+                            alert("You must specify at least one executable file name");
                             return;
                         }
-                        // Save the file, over-writing any existing file
-                        ser = new XMLSerializer();
-                        ser.$formSerialize = true;
-                        content = ser.serializeToString($('#dynamic'));
+                        if (!$('.dirPath').value) {
+                            alert("You must supply a path for your executable");
+                            return;
+                        }
+                        templateName = $('#templateName').value;
+                        if ($('#rememberTemplateChanges').checked &&
+                            templateName !== '') {
+                            // Save the file, over-writing any existing file
+                            ser = new XMLSerializer();
+                            ser.$formSerialize = true;
+                            content = ser.serializeToString($('#dynamic'));
 
-                        emit('saveTemplate', {
-                            fileName: templateName,
-                            content: content
-                        });
+                            emit('saveTemplate', {
+                                fileName: templateName,
+                                content: content
+                            });
+                        }
+
+                        emit('cmd', {args: [], observe: function () {
+                            alert('Command run!');
+                        }});
+
+/*
+D:\wamp\www\executable-builder\data\createShortcut.bat
+*/
+                        
+                        /*
+                        emit('saveExecutables');
+                        // $('.executableName') $('.dirPath')
+
+                        // $('.fileExtension').value // defaultFileExtension
+                        // ftype assoc
+                        // reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
+                        emit('associateFileExtension');
+                        */
+                        
                         break;
                 }
             }
@@ -401,17 +435,17 @@ Todos:
                 ['br', 'br'],
                 ['div', {id: 'dynamic'}, [
                     ['label', [
-                        'Template name',
+                        'Template name: ',
                         ['input', {id: 'templateName'}]
                     ]],
-                    ['br'],
-                    ['label', [
-                        'Executable name: ',
-                        ['input']
+                    ['fieldset', {id: 'pathHolder'}, [
+                        ['legend', ['Executable directory(ies)']],
+                        ['datalist', {id: 'datalist'}],
+                        createPathInput()
                     ]],
                     ['div', [
                         ['label', {'for': 'iconPath'}, [
-                            'Icon path for the executable (optional): '
+                            'Icon path for the executable: '
                         ]],
                         ['select', {id: 'iconPathSelect'}, [
                             // Todo: Change for other OSes
@@ -446,12 +480,12 @@ Todos:
                         ]]
                     ]],
                     ['fieldset', {id: 'fileExtensionHolder'}, [
-                        ['legend', ['File extension association (optional)']],
+                        ['legend', ['File extension association']],
                         createFileExtensionControls()
                     ]],
                     ['div', [
                         ['label', [
-                            ['input', {type: 'radio', name: 'executableType'}],
+                            ['input', {type: 'radio', name: 'executableType', checked: 'checked'}],
                             'Open with WebAppFind?'
                         ]],
                         ['label', [
@@ -473,7 +507,7 @@ Todos:
                     */
                     ['div', [
                         ['label', {'for': 'profileName'}, [
-                            'Profile to associate with this executable (optional): '
+                            'Profile to associate with this executable: '
                         ]],
                         ['select', {id: 'profileNameSelect'}, getProfiles()],
                         ['input', {id: 'profileName'}],
@@ -498,7 +532,7 @@ Todos:
                     // Todo:
                     // 1. An optional, hard-coded web app URL (to circumvent the normal detection procedures and always open with a given web app)
                     ['label', [
-                        'Hard-coded web app URI (optional): ',
+                        'Hard-coded web app URI: ',
                         ['input', {
                             type: 'url', id: 'urlBox', list: 'urlDatalist', autocomplete: 'off',
                             size: 100, value: ''
@@ -525,35 +559,30 @@ Todos:
                     ['br'],
                     //  Todo: 1. Batch file building section; Raw textarea (OR (only?) when webappfind is also installed...)
                     ['label', [
-                        'Batch file commands in addition to any other options set above (optional): ',
+                        'Batch file commands in addition to any other options set above: ',
                         ['br'],
                         ['textarea']
                     ]],
                     ['br'],
                     //  Todo: 1. Strings
                     ['label', [
-                        'Hard-coded string to pass as content to the WebAppFind web app (optional): ',
+                        'Hard-coded string to pass as content to the WebAppFind web app: ',
                         ['br'],
                         ['textarea']
                     ]],
                     ['br'],
                     //  Todo: 1. JavaScript (implement with CodeMirror or option to load JS file (itself invocable with WebAppFind) instead)
                     ['label', [
-                        'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app (optional): ',
+                        'Hard-coded string to pass as evalable JavaScript to the WebAppFind web app: ',
                         ['br'],
                         ['textarea']
                     ]],
                     ['br'],
                     //  Todo: 1. Arguments
                     ['label', [
-                        'Command line arguments in addition to any other options set above (optional): ',
+                        'Command line arguments in addition to any other options set above: ',
                         // ['br'],
                         ['input', {size: 100}]
-                    ]],
-                    ['fieldset', {id: 'pathHolder'}, [
-                        ['legend', ['Executable directory(ies)']],
-                        ['datalist', {id: 'datalist'}],
-                        createPathInput()
                     ]],
                     ['br'],
                     ['button', {id: 'createExecutable'}, [
