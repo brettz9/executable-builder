@@ -25,36 +25,36 @@ privileged features to web applications (such as one may get if using Executable
 a separate set of add-ons for each executable (and without the problem that all of these other mentioned executable projects are all now apparently defunct).
 
 # Todos
-1. Put in separate add-on window as opposed to panel for sake of autocomplete, tooltips, etc. (also might dogfood reading in a special file type though may need AYW for privileges); for time being, at least implement command line handler to support auto-opening this dialog on start so that until web apps support file writing to arbitrary locations (WebActivity or new addition to WebAppFind?), one can at least treat ExecutableBuilder as itself an executable (and be able to bake it into an executable with its own icon, profile, etc.)
-1. Allow associating with profile and whether new window, tab, etc. for hard-coded URL which bypasses any WebAppFind behaviors
-1. (Make data file as custom format which WebAppFind can read/edit (as
-with any other WebAppFind), e.g., so one could develop an AYW
-handling app to read or edit these files in its own way), as with SVG icons
-1. Ability to manage previously added items (including if added to extended filebrowser)
-1. Making shortcuts via command line: http://ss64.com/nt/shortcut.html
-1. Use command line http://www.registryonwindows.com/registry-command-line.php (invokable
-from FF add-on) to add to registry re: open-with values or use js-ctypes or command line
-for integrating with deeper Windows (and Linux) functionality? e.g., adding items for "open with"
-1. See execute.js for specific todos already under-way
+
+1. IMPORTANT: Upgrade my quick-and-dirty, ironically non-concern-separated data files approach in favor of some kind of data-only form serialization (in case fields change), e.g., https://github.com/macek/jquery-serialize-object
+1. IMPORTANT: See execute.js for specific todos already under-way
 1. Ask Mozilla re: -new-instance on Windows (if it is supposed to create a new separate icon) and whether can add as feature, including for the sake of this add-on
-1. Other dependent read-me todos:
-    1. Remove from WebAppFind/filebrowser-enhanced todos any items completed in process of this add-on
-    1. Deprecate executables in WebAppFind when batch approach done.
-    1. Comparing to exes? adding to favorites, etc.? (any other unimplemented left to replicate and add as a todo?)
-    1. Open with batch ok for "Open with" but a problem with task bar (without tricks); any
-    other reasons for exe over batch? try drag&drop onto cmd alias to batch (another advantage
-    of executables) and describe usage with ExecutableBuilder-created batch files. Can
-    use drag-onto-batch approach to pass in file path to Firefox with protocol
-    (e.g., for creating and validating but especially the file-path-specific
-    view and editing): see http://stackoverflow.com/questions/6852833/running-a-batch-script-by-right-clicking-any-file
-    and cf. to drag-and-drop into browser; allow drag-and-drop of files onto add-on icon
-    for processing similar to C++-based right-click? Drag files onto batch icon as another option?
-    1. Mention current possibility to launch AYW from desktop by double-click, e.g., for
-    batch-like operations? (and reference possible todo of hidden, real batch-like)
-    1. Mention possibility of AsYouWish executing ExecutableBuilder functionality (e.g., registering web
-        apps as desktop file extension/type handlers), perhaps via exposure of ExecutableBuilder
-        capabilities to command line (as with WebAppFind)
-    1. Reference http://en.wikipedia.org/wiki/Site-specific_browser as far as possibility of sandboxing web apps and possibilities of using XULRunner instead of Firefox for more light weight "executable" environment
+1. Implement command line handler to support auto-opening exec dialog on start so that until web apps support file writing to arbitrary locations (WebActivity or new addition to WebAppFind?), one can at least treat ExecutableBuilder as itself an executable (and be able to bake it into an executable with its own icon, profile, etc.)
+1. Add AsYouWish (and ExecutableBuilder and WebAppFind) optionally to profile folder (or global?) so apps can have
+privs from any profile! (Ought to be desirable to have easy
+way to share back from one profile to another though in case
+people start building independent executables and then decide
+want to share again so as to allow independent executable)
+
+# Other dependent read-me todos:
+
+1. Remove from WebAppFind/filebrowser-enhanced todos any items completed in process of this add-on
+1. Deprecate executables in WebAppFind when batch approach done.
+1. Comparing to exes? adding to favorites, etc.? (any other unimplemented left to replicate and add as a todo?)
+1. Open with batch ok for "Open with" but a problem with task bar (without tricks); any
+other reasons for exe over batch? try drag&drop onto cmd alias to batch (another advantage
+of executables) and describe usage with ExecutableBuilder-created batch files. Can
+use drag-onto-batch approach to pass in file path to Firefox with protocol
+(e.g., for creating and validating but especially the file-path-specific
+view and editing): see http://stackoverflow.com/questions/6852833/running-a-batch-script-by-right-clicking-any-file
+and cf. to drag-and-drop into browser; allow drag-and-drop of files onto add-on icon
+for processing similar to C++-based right-click? Drag files onto batch icon as another option?
+1. Mention current possibility to launch AYW from desktop by double-click, e.g., for
+batch-like operations? (and reference possible todo of hidden, real batch-like)
+1. Mention possibility of AsYouWish executing ExecutableBuilder functionality (e.g., registering web
+    apps as desktop file extension/type handlers), perhaps via exposure of ExecutableBuilder
+    capabilities to command line (as with WebAppFind)
+1. Reference http://en.wikipedia.org/wiki/Site-specific_browser as far as possibility of sandboxing web apps and possibilities of using XULRunner instead of Firefox for more light weight "executable" environment
 
 # Planned future todos
 
@@ -62,18 +62,14 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
 # Possible todos
 
+1. Ability to manage previously added items (including if added to extended filebrowser) so that one knows which file types have been associated through this add-on
 1. Include ability to embed configuration information if WebAppFind command line starts to support
-    more configuration options (e.g., full screen mode, or stage of algorithm to require or at which to begin).
+    more configuration options (e.g., full screen mode, or stage of type-detection algorithm to require or at which to begin).
 1. Build executables which could work in other browsers (if WebAppFind can be ported).
 1. Try installing WebAppFind and ExecutableBuilder extensions globally so each profile (or multiple profiles--e.g., one
 profile for each WebAppFind method and/or different environments--e.g., multiple tabs but
 only for HTML reading) can access it? (since --install-global-extension is removed from
 FF now, should apparently use this instead: https://developer.mozilla.org/en-US/docs/Installing_extensions )
-1. Add AsYouWish (and ExecutableBuilder and WebAppFind) optionally to profile folder (or global?) so apps can have
-privs from any profile! (Ought to be desirable to have easy
-way to share back from one profile to another though in case
-people start building independent executables and then decide
-want to share again so as to allow independent executable)
 1. If WebAppFind implements eval()-like behavior (see its todos for more on this possibility),
 create batch files (also for Linux/Mac) which pass evalable JS files (or embed JS strings) as
 a command line argument which will be sent to FF for (privileged) evaluation along with
@@ -94,3 +90,5 @@ no "open with option when done this way); pass in additional files for access
 (e.g., to save to a config file, to build an icon file in a predictable
 location along with the other file data, etc.)
 1. Conditional logic to check if -no-remote (preferred is open) and if not, open a specific or vice versa? (?)
+1. Demo todos
+    1. Demo dogfooding reading/editing our special file type once separation-of-concerns/serialize to-do is complete (so it could be handled by other apps as with any other WebAppFind file) though would need AYW for privileges (as also could do with SVG icons when done)

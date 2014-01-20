@@ -8,12 +8,16 @@ and possibly https://developer.mozilla.org/en-US/docs/Profile_Manager
     var imgTools = Components.classes["@mozilla.org/image/tools;1"].getService(Components.interfaces.imgITools);
     imgTools.encodeImage( , 'image/x-icon');
 1. With WebAppFind, tried -remote, -silent; didn't try -no-remote, -tray
+1. Making shortcuts via command line: http://ss64.com/nt/shortcut.html
 
 Todos:
-1. Split into generic and specific sections (so will allow building of executables regardless of whether used for WebAppFind or not):
+1. Split into generic and specific sections (so will allow building of executables regardless of whether used for WebAppFind or not); dynamically reveal sections based on "Open with WebAppFind?" radio group selection
 
-1. Reported error (as with tooltip titles): autocomplete won't show up inside of panels: https://bugzilla.mozilla.org/show_bug.cgi?id=918600
+1. Reported error (as with tooltip titles): autocomplete won't show up inside of panels: https://bugzilla.mozilla.org/show_bug.cgi?id=918600 (though currently not doing as panel anyways)
 1. Build command line output including path flag
+    1. Use command line http://www.registryonwindows.com/registry-command-line.php (invokable
+from FF add-on) to add to registry re: open-with values or use js-ctypes or command line
+for integrating with deeper Windows (and Linux) functionality? e.g., adding items for "open with"
 1. Search for other "todo" instances below
 */
 /*jslint sloppy: true*/
