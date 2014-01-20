@@ -40,6 +40,7 @@ privs from any profile! (Ought to be desirable to have easy
 way to share back from one profile to another though in case
 people start building independent executables and then decide
 want to share again so as to allow independent executable)
+1. Attempt, implement and document editor associations (which apparently cannot be set through the normal Windows UI as with "Open With") such as allowing a web app to read batch files: http://windowsitpro.com/windows-server/how-can-i-change-editor-used-edit-batchcommand-files
 
 # Other dependent read-me todos:
 
