@@ -34,7 +34,7 @@ If one launches an AsYouWish app, one can utilize awareness of the supplied desk
 1. IMPORTANT: Upgrade my quick-and-dirty, ironically non-concern-separated data files approach in favor of some kind of data-only form serialization (in case fields change), e.g., https://github.com/macek/jquery-serialize-object
 1. IMPORTANT: See execute.js for specific todos already under-way
 1. Ask Mozilla re: -new-instance on Windows (if it is supposed to create a new separate icon) and whether can add as feature, including for the sake of this add-on
-1. Implement command line handler to support auto-opening exec dialog on start so that until web apps support file writing to arbitrary locations (WebActivity or new addition to WebAppFind?), one can at least treat ExecutableBuilder as itself an executable (and be able to bake it into an executable with its own icon, profile, etc.)
+1. Implement command line handler to support auto-opening exec dialog on start so that until web apps support file writing to arbitrary locations (WebActivity or new addition to WebAppFind?), one can at least treat ExecutableBuilder as itself an executable (and be able to bake it into an executable with its own icon, profile, etc.); also support other commands, so e.g., an AsYouWish application could provide an alternative interface than the built-in exec dialog
 1. Add AsYouWish (and ExecutableBuilder and WebAppFind) optionally to profile folder (or global?) so apps can have
 privs from any profile! (Ought to be desirable to have easy
 way to share back from one profile to another though in case
