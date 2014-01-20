@@ -15,14 +15,19 @@ icon with the executable which in turn allows for display of the icon in Windows
 Explorer, the start menu, the task bar, and in IE, in its location bar, tabs, favorites,
 and on the list of "Your most popular sites" or "Frequent". If one opts to tie this executable
 to a separate Firefox profile, this icon will show up in the task bar independent from
-other Firefox windows.
+other Firefox windows. (If WebAppFind can be adapte to support XULRunner instead of Firefox,
+one might be able to get an even more light weight "executable" environment.)
 
-The executables built by Executable Builder are actually just simple shortcuts to the command line which pass some additional instructions to it. In the case of WebAppFind executables, these will be command line instructions to Firefox.
+The executables built by Executable Builder are actually just simple files working with the command line which pass some additional instructions to it. In the case of WebAppFind executables, these will be passing command line instructions to Firefox.
 
 Used in conjunction with Firefox profiles, one will get the benefits of former projects like Mozilla Prism/Chromeless/WebRunner which provided web applications as executables with their
 ability to show up independently in the task bar, but with the added optional ability of granting
 privileged features to web applications (such as one may get if using Executable Builder/WebAppFind with an AsYouWish application) and with the ability to utilize add-ons, even
 a separate set of add-ons for each executable (and without the problem that all of these other mentioned executable projects are all now apparently defunct).
+
+# Potential use with AsYouWish
+
+If one launches an AsYouWish app, one can utilize awareness of the supplied desktop path and contents along with escalated privileges (see [WebAppFind](https://github.com/brettz9/webappfind) and [AsYouWish](https://github.com/brettz9/asyouwish/) for more, including the possibility for console-less batch-like operations).
 
 # Todos
 
@@ -49,12 +54,6 @@ use drag-onto-batch approach to pass in file path to Firefox with protocol
 view and editing): see http://stackoverflow.com/questions/6852833/running-a-batch-script-by-right-clicking-any-file
 and cf. to drag-and-drop into browser; allow drag-and-drop of files onto add-on icon
 for processing similar to C++-based right-click? Drag files onto batch icon as another option?
-1. Mention current possibility to launch AYW from desktop by double-click, e.g., for
-batch-like operations? (and reference possible todo of hidden, real batch-like)
-1. Mention possibility of AsYouWish executing ExecutableBuilder functionality (e.g., registering web
-    apps as desktop file extension/type handlers), perhaps via exposure of ExecutableBuilder
-    capabilities to command line (as with WebAppFind)
-1. Reference http://en.wikipedia.org/wiki/Site-specific_browser as far as possibility of sandboxing web apps and possibilities of using XULRunner instead of Firefox for more light weight "executable" environment
 
 # Planned future todos
 
