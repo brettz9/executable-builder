@@ -90,5 +90,6 @@ no "open with option when done this way); pass in additional files for access
 (e.g., to save to a config file, to build an icon file in a predictable
 location along with the other file data, etc.)
 1. Conditional logic to check if -no-remote (preferred is open) and if not, open a specific or vice versa? (?)
+1. Make SED file more configurable (and savable along with batch?)
 1. Demo todos
     1. Demo dogfooding reading/editing our special file type once separation-of-concerns/serialize to-do is complete (so it could be handled by other apps as with any other WebAppFind file) though would need AYW for privileges (as also could do with SVG icons when done)
