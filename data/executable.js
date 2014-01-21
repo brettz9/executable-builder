@@ -1,5 +1,5 @@
-/*globals self, jml, XMLSerializer */
-/*jslint todo:true*/
+/*globals self, jml, XMLSerializer, DOMParser */
+/*jslint todo:true, sloppy: true*/
 /*
 Info:
 1. On building profile dir. for executables, see http://stackoverflow.com/questions/18711327/programmatically-create-firefox-profiles
@@ -20,7 +20,6 @@ from FF add-on) to add to registry re: open-with values or use js-ctypes or comm
 for integrating with deeper Windows (and Linux) functionality? e.g., adding items for "open with"
 1. Search for other "todo" instances below
 */
-/*jslint sloppy: true*/
 (function () {
     function l (msg) {
         console.log(msg);
@@ -31,9 +30,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         return;
     }
 
-    var body = document.querySelector('body'),
-        ct = 0, ctr = 0,
-        k = 0,
+    var ct = 0, ctr = 0, k = 0,
         profiles = [],
         paths = {},
         on = self.port.on,
