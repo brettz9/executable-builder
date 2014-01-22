@@ -8,7 +8,6 @@ and possibly https://developer.mozilla.org/en-US/docs/Profile_Manager
     var imgTools = Components.classes["@mozilla.org/image/tools;1"].getService(Components.interfaces.imgITools);
     imgTools.encodeImage( , 'image/x-icon');
 1. With WebAppFind, tried -remote, -silent; didn't try -no-remote, -tray
-1. Making shortcuts via command line: http://ss64.com/nt/shortcut.html
 
 Todos:
 1. Split into generic and specific sections (so will allow building of executables regardless of whether used for WebAppFind or not); dynamically reveal sections based on "Open with WebAppFind?" radio group selection
@@ -39,6 +38,9 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
     function $ (sel) {
         return document.querySelector(sel);
+    }
+    function $$ (sel) {
+        return document.querySelectorAll(sel);
     }
     function templateExistsInMenu (val) {
         return [].slice.call($('#templates')).some(function (option) {
@@ -262,6 +264,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         
         window.addEventListener('click', function (e) {
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
+                exeNames, dirPaths,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -272,6 +275,12 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset && e.target.parentNode.dataset.pathBoxSelect),
                 pathInputID = dataset.pathInputID;
 
+            function toArray (arrLikeObj) {
+                return [].slice.call(arrLikeObj);
+            }
+            function toValue (item) {
+                return item.value;
+            }
             if (dirPick) {
                 // Value can be blank (if user just wishes to browse)
                 emit('dirPick', {dirPath: $('#pathBox' + dirPick).value, i: dirPick});
@@ -395,24 +404,21 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             });
                         }
 
-                        emit('cmd', {args: [], observe: function () {
-                            alert('Command run!');
-                        }});
+                        exeNames = toArray($$('.executableName')).map(toValue);
+                        dirPaths = toArray($$('.dirPath')).map(toValue);
 
-/*
-D:\wamp\www\executable-builder\data\createShortcut.bat
-*/
+                        emit('saveExecutables', {templateName: templateName, exeNames: exeNames, dirPaths: dirPaths});
                         
                         /*
-                        emit('saveExecutables');
-                        // $('.executableName') $('.dirPath')
-
                         // $('.fileExtension').value // defaultFileExtension
                         // ftype assoc
                         // reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
                         emit('associateFileExtension');
                         */
-                        
+
+                        /*emit('cmd', {args: [], observe: function () {
+                            alert('Command run!');
+                        }});*/
                         break;
                 }
             }
@@ -516,8 +522,9 @@ D:\wamp\www\executable-builder\data\createShortcut.bat
                             'Manage profiles'
                         ]]
                     ]],
+                    // Todo: Support custom modes if WebAppFind implements
                     ['label', [
-                        'Method: ',
+                        'Mode: ',
                         ['select', [
                             ['option', {value: 'view'}, ['View']],
                             ['option', {value: 'binaryview'}, ['Binary view']],
