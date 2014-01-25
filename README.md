@@ -93,3 +93,7 @@ location along with the other file data, etc.)
 1. Make SED file more configurable (and savable along with batch?)
 1. Demo todos
     1. Demo dogfooding reading/editing our special file type once separation-of-concerns/serialize to-do is complete (so it could be handled by other apps as with any other WebAppFind file) though would need AYW for privileges (as also could do with SVG icons when done)
+
+# Apprecation
+
+A special thanks to [Imgen Tata](http://www.pdfbatch.com/) for fielding Windows questions.
