@@ -10,7 +10,7 @@ and possibly https://developer.mozilla.org/en-US/docs/Profile_Manager
 1. With WebAppFind, tried -remote, -silent; didn't try -no-remote, -tray
 
 Todos:
-1. Split into generic and specific sections (so will allow building of executables regardless of whether used for WebAppFind or not); dynamically reveal sections based on "Open with WebAppFind?" radio group selection
+1. Split into generic and specific sections (so will allow building of executables regardless of whether used for WebAppFind or not); dynamically reveal sections based on "Open with WebAppFind?" radio group selection, hard-coding or not, etc.
 
 1. Reported error (as with tooltip titles): autocomplete won't show up inside of panels: https://bugzilla.mozilla.org/show_bug.cgi?id=918600 (though currently not doing as panel anyways)
 1. Build command line output including path flag
@@ -64,9 +64,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         /*
         Todos:
         1. Associate file extensions to file type, and file type to executable: ftype/assoc
-        1. Make as default (or only use with open with...))
+        1. Make as default (or only use with open with...)); OpenWithProgids ?
         1. List all file types in pull-down in case someone wants to create an explicit file type for a given extension (or just a file type in case the registry already handles extension-to-type associations) ("assoc" for all <.fileext>=<filetype>, "assoc + <filetype>" to get <.fileext>=<long name>; "ftype" for all <filetype>="<exe path>" %1, etc.)
         1. List all existing extension-to-type associations, extension-to-long-name, type-to-exe, or extension-to-exe
+        1. See discussion on icons below for app ID association (and adding to recent docs or jump list customization)
         */
         var i = ++ctr;
         return ['div', {id: 'fileExtensionInfoHolder' + i}, [
@@ -527,6 +528,14 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             ico files, subject to a filetypes.json file in those
                             directories) (might utilize those paths already added for saving)
                             1. If filetypes.json has an icons section, use that by default instead?
+                            1. open SVG or ICO but save back at least to ICO and ideally to SVG (but multiple file saving not supported currently by WebAppFind, so do through add-on for now)
+                        1. Ensure icon will work by assigning appIDs to specific windows, profile (processes?), or app (idea to list FF tabs in jump list?); SHAddToRecentDocs may add app ID AND add the potentially useful behavior of putting web apps into recent docs (if add support, make this optional)
+                            Windows: Separate windows get app IDs (SHGetPropertyStoreForWindow)
+                            Process: SetCurrentProcessExplicitAppUserModelID
+                            File association registration (ProgIDs; in Win7, add AppUserModelID)
+                            Jump list destinations/tasks: ICustomDestinationList
+                            Shortcut (PKEY_AppUserModel_ID)
+                            SHAddToRecentDocs
                         */
                         ['button', {id: 'openOrCreateICO', title: 'If the ICO file at the supplied path does not exist, an empty file will be created which can then be edited. Be sure to save your changes to the ICO file when done.'}, [
                             'Create/Edit ICO file'
@@ -542,6 +551,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Hard-coded desktop file: '
                         ]],
                         ['select', {id: 'desktopFilePathSelect'}, [
+                            // Todo: Change for other OSes? (see links above)
                             ['option', {value: ''}, ['(Choose a location)']],
                             ['option', {value: getHardPath('Docs')}, ['Documents']],
                             ['option', {value: getHardPath('Desk')}, ['Desktop']]
