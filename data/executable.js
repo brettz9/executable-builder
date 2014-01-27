@@ -61,14 +61,25 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         }];
     }
     function createFileExtensionControls () {
-        // Todo: File extensions for association (also ask "default?"): .....   (checkbox on whether to make as default (or only use with open with...))
+        /*
+        Todos:
+        1. Associate file extensions to file type, and file type to executable: ftype/assoc
+        1. Make as default (or only use with open with...))
+        1. List all file types in pull-down in case someone wants to create an explicit file type for a given extension (or just a file type in case the registry already handles extension-to-type associations) ("assoc" for all <.fileext>=<filetype>, "assoc + <filetype>" to get <.fileext>=<long name>; "ftype" for all <filetype>="<exe path>" %1, etc.)
+        1. List all existing extension-to-type associations, extension-to-long-name, type-to-exe, or extension-to-exe
+        */
         var i = ++ctr;
         return ['div', {id: 'fileExtensionInfoHolder' + i}, [
             ['label', [
-                'File extension to associate with this executable: ',
+                'File extension to associate with this executable (for Open With): ',
                 ['input', {size: 10, 'class': 'fileExtension'}]
             ]],
-            ' \u00a0 ',
+            ['br'],
+            ['label', [
+                'File type to associate for this executable (or between it and any supplied extension): ',
+                ['input', {size: 10, 'class': 'fileExtension'}]
+            ]],
+            ['br'],
             ['label', [
                 'Make the default execution handler for files with this extension?',
                 ['input', {type: 'checkbox', 'class': 'defaultFileExtension'}]
@@ -78,7 +89,8 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             ]],
             ['button', {dataset: {fileExtensionID: i, type: 'remove'}}, [
                 '-'
-            ]]
+            ]],
+            ['hr']
         ]];
     }
 
@@ -595,6 +607,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             ['option', {value: 'binaryedit'}, ['Binary edit']]
                         ]]
                     ]],
+                    ' \u00a0 ',
                     ['label', [
                         'Custom mode: ',
                         ['input', {id: 'customMode'}]
