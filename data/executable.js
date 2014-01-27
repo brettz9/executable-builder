@@ -435,11 +435,12 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         emit('saveExecutables', {templateName: templateName, exeNames: exeNames, dirPaths: dirPaths});
                         
                         /*
-                        // Todo: UI to optionally pass in shortcut, hot key, windowStyle
+                        // Todo: UI to pass in hot key, windowStyle, description? SED options?
+                        // Todo: Opt for batch vs. exe?
+                        // Todo: Option to preserve shortcut
                         options = {
                             shortcutPath: ,
                             profileName: ,
-                            templateName: ,
                             iconPath: ,
                             hotKey: ,
                             windowStyle: ,
