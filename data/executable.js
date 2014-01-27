@@ -268,7 +268,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         
         window.addEventListener('click', function (e) {
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                exeNames, dirPaths,
+                options, exeNames, dirPaths,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -423,7 +423,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         
                         /*
                         // Todo: UI to optionally pass in shortcut, hot key, windowStyle
-                        emit('createBatchForShortcutCreation', {
+                        options = {
                             shortcutPath: ,
                             profileName: ,
                             templateName: ,
@@ -431,7 +431,18 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             hotKey: ,
                             windowStyle: ,
                             description: templateName
-                        });
+                        };
+                        if () {
+                            options.webappdoc = ; // Todo: Desktop or URL!
+                        }
+                        if () {
+                            options.webappmode = ;
+                        }
+                        if () {
+                            options.webappcustommode = ;
+                        }
+
+                        emit('createBatchForShortcutCreation', options);
 
                         // $('.fileExtension').value // defaultFileExtension
                         // ftype assoc
