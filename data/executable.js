@@ -504,23 +504,23 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             createFileExtensionControls()
                         ]],
                         ' OR ',
-                        ['label', [
-                            'Hard-coded desktop file: ',
-                            ['select', {id: 'desktopFilePathSelect'}, [
-                                ['option', {value: ''}, ['(Choose a location)']],
-                                ['option', {value: getHardPath('Docs')}, ['Documents']],
-                                ['option', {value: getHardPath('Desk')}, ['Desktop']]
-                            ]],
-                            ['input', {
-                                type: 'text', id: 'desktopFilePath', list: 'desktopFilePathDatalist', autocomplete: 'off',
-                                size: 70, value: ''
-                            }],
-                            ['button', {id: 'desktopFilePick'}, [
-                                'Browse\u2026'
-                            ]],
-                            createRevealButton('#desktopFilePath'),
-                            ['datalist', {id: 'desktopFilePathDatalist'}]
-                        ]]
+                        ['label', {'for': 'desktopFilePath'}, [
+                            'Hard-coded desktop file: '
+                        ]],
+                        ['select', {id: 'desktopFilePathSelect'}, [
+                            ['option', {value: ''}, ['(Choose a location)']],
+                            ['option', {value: getHardPath('Docs')}, ['Documents']],
+                            ['option', {value: getHardPath('Desk')}, ['Desktop']]
+                        ]],
+                        ['input', {
+                            type: 'text', id: 'desktopFilePath', list: 'desktopFilePathDatalist', autocomplete: 'off',
+                            size: 70, value: ''
+                        }],
+                        ['button', {id: 'desktopFilePick'}, [
+                            'Browse\u2026'
+                        ]],
+                        createRevealButton('#desktopFilePath'),
+                        ['datalist', {id: 'desktopFilePathDatalist'}]
                     ]],
                     ['div', [
                         ['label', [
