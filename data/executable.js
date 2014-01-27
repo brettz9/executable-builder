@@ -194,16 +194,16 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         $('#dynamic').parentNode.replaceChild(dom.documentElement, $('#dynamic'));
     });
 
-    on('filePickResult', function (path) {
+    function fileOrDirResult (data) {
+        var path = data.path,
+            selector = data.selector;
         if (path) {
-            $('#iconPath').value = path;
+            $(selector).value = path;
         }
-    });
-    on('dirPickResult', function (data) {
-        if (data.path) {
-            $('#pathBox' + data.i).value = data.path;
-        }
-    });
+    }
+    on('filePickResult', fileOrDirResult);
+    on('dirPickResult', fileOrDirResult);
+
     on('saveTemplateResult', function (data) {
         if (!templateExistsInMenu(data.templateName)) {
             $('#templates').add(jml('option', [data.templateName]));
@@ -240,7 +240,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     listID: e.target.getAttribute('list')
                 });
             }
-            else if (id === 'iconPath') {
+            else if (id === 'desktopFilePath' || id === 'iconPath') {
                 emit('autocompleteValues', {
                     value: val,
                     listID: e.target.getAttribute('list')
@@ -287,7 +287,11 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             }
             if (dirPick) {
                 // Value can be blank (if user just wishes to browse)
-                emit('dirPick', {dirPath: $('#pathBox' + dirPick).value, i: dirPick});
+                emit('dirPick', {
+                    dirPath: $('#pathBox' + dirPick).value,
+                    selector: '#pathBox' + dirPick,
+                    selectFolder: dirPick
+                });
             }
             else if (pathInputID) {
                 holderID = 'pathBoxHolder' + pathInputID;
@@ -329,7 +333,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     }
                 }
                 else if (type === 'remove') {
-                    if ($(parentHolderSel).children.length <= 2) { // Legend and a single path control
+                    if ($(parentHolderSel).children.length <= 1) { // A single path control
                         return;
                     }
                     $('#' + holderID).parentNode.removeChild($('#' + holderID));
@@ -349,7 +353,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             else {
                 if (e.target.nodeName.toLowerCase() === 'option') {
                     switch (e.target.parentNode.id) {
-                        case 'iconPathSelect': case 'profileNameSelect':
+                        case 'iconPathSelect': case 'profileNameSelect': case 'desktopFilePathSelect':
                             id = e.target.parentNode.id;
                             break;
                         default:
@@ -365,15 +369,19 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         }
                         emit('deleteTemplate', {fileName: val});
                         break;
-                    case 'iconPathSelect':
+                    case 'desktopFilePathSelect': case 'iconPathSelect':
                         if (!val) {
                             return;
                         }
-                        $('#iconPath').value = val;
+                        $('#' + id.replace(/Select$/, '')).value = val;
                         break;
-                    case 'filePick':
+                    case 'desktopFilePick': case 'iconPick':
                         // Value can be blank (if user just wishes to browse)
-                        emit('filePick', $('#iconPath').value);
+                        sel = '#' + id.replace(/Pick$/, 'Path')
+                        emit('filePick', {
+                            dirPath: $(sel).value,
+                            selector: sel
+                        });
                         break;
                     case 'openOrCreateICO':
                         emit('openOrCreateICO');
@@ -472,7 +480,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             type: 'text', id: 'iconPath', list: 'datalist', autocomplete: 'off',
                             size: 70, value: ''
                         }],
-                        ['button', {id: 'filePick'}, [
+                        ['button', {id: 'iconPick'}, [
                             'Browse\u2026'
                         ]],
                         createRevealButton('#iconPath'),
@@ -490,9 +498,29 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Create/Edit ICO file'
                         ]]
                     ]],
-                    ['fieldset', {id: 'fileExtensionHolder'}, [
-                        ['legend', ['File extension association']],
-                        createFileExtensionControls()
+                    ['fieldset', [
+                        ['legend', ['File association']],
+                        ['div', {id: 'fileExtensionHolder'}, [
+                            createFileExtensionControls()
+                        ]],
+                        ' OR ',
+                        ['label', [
+                            'Hard-coded desktop file: ',
+                            ['select', {id: 'desktopFilePathSelect'}, [
+                                ['option', {value: ''}, ['(Choose a location)']],
+                                ['option', {value: getHardPath('Docs')}, ['Documents']],
+                                ['option', {value: getHardPath('Desk')}, ['Desktop']]
+                            ]],
+                            ['input', {
+                                type: 'text', id: 'desktopFilePath', list: 'desktopFilePathDatalist', autocomplete: 'off',
+                                size: 70, value: ''
+                            }],
+                            ['button', {id: 'desktopFilePick'}, [
+                                'Browse\u2026'
+                            ]],
+                            createRevealButton('#desktopFilePath'),
+                            ['datalist', {id: 'desktopFilePathDatalist'}]
+                        ]]
                     ]],
                     ['div', [
                         ['label', [
