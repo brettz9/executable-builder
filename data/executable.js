@@ -116,11 +116,13 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
                     // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
                     ['option', {value: ''}, ['(Or choose a location)']],
+                    ['option', {value: getHardPath('Executable')}, ['Executable folder within profile folder']],
                     ['option', {value: getHardPath('Desk')}, ['Desktop']],
                     ['option', {value: getHardPath('Strt')}, ['Start-up']],
                     ['option', {value: getHardPath('Progs')}, ['Start menu']],
                     ['option', {value: getHardPath('TaskBar')}, ['Task bar']],
-                    ['option', {value: getHardPath('ProfD')}, ['Profile folder']]
+                    ['option', {value: getHardPath('ProfD')}, ['Profile folder']],
+                    ['option', {value: getHardPath('Programs')}, ['Programs']]
                     // Before Win7: C:\Documents and Settings\UserName\Application Data\Microsoft\Internet Explorer\Quick Launch
                 ]],
                 createRevealButton('#pathBox' + i),
