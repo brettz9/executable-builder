@@ -229,7 +229,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     dirOnly: true
                 });
             }
-            else if (id === 'urlBox') {
+            else if (id === 'urlBox' || id === 'documentURLBox') {
                 /*
                 if (val.length < 9) { // http://.
                     return;
@@ -377,7 +377,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         break;
                     case 'desktopFilePick': case 'iconPick':
                         // Value can be blank (if user just wishes to browse)
-                        sel = '#' + id.replace(/Pick$/, 'Path')
+                        sel = '#' + id.replace(/Pick$/, 'Path');
                         emit('filePick', {
                             dirPath: $(sel).value,
                             selector: sel
@@ -521,7 +521,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         ]]
                     ]],
                     ['fieldset', [
-                        ['legend', ['File association']],
+                        ['legend', ['File/type association']],
                         ['div', {id: 'fileExtensionHolder'}, [
                             createFileExtensionControls()
                         ]],
@@ -542,7 +542,17 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Browse\u2026'
                         ]],
                         createRevealButton('#desktopFilePath'),
-                        ['datalist', {id: 'desktopFilePathDatalist'}]
+                        ['datalist', {id: 'desktopFilePathDatalist'}],
+                        ['br'],
+                        ' OR ',
+                        ['label', [
+                            'Hard-coded URL document file: ',
+                            ['input', {
+                                type: 'url', id: 'documentURLBox', list: 'documentURLDatalist', autocomplete: 'off',
+                                size: 100, value: ''
+                            }],
+                            ['datalist', {id: 'documentURLDatalist'}]
+                        ]]
                     ]],
                     ['div', [
                         ['label', [
