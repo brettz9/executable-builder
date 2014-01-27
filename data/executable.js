@@ -119,7 +119,9 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     ['option', {value: getHardPath('Desk')}, ['Desktop']],
                     ['option', {value: getHardPath('Strt')}, ['Start-up']],
                     ['option', {value: getHardPath('Progs')}, ['Start menu']],
-                    ['option', {value: getHardPath('TaskBar')}, ['Task bar']]
+                    ['option', {value: getHardPath('TaskBar')}, ['Task bar']],
+                    ['option', {value: getHardPath('ProfD')}, ['Profile folder']]
+                    // Before Win7: C:\Documents and Settings\UserName\Application Data\Microsoft\Internet Explorer\Quick Launch
                 ]],
                 createRevealButton('#pathBox' + i),
                 ['button', {dataset: {pathInputID: i, type: 'add'}}, [
