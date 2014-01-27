@@ -422,6 +422,17 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         emit('saveExecutables', {templateName: templateName, exeNames: exeNames, dirPaths: dirPaths});
                         
                         /*
+                        // Todo: UI to optionally pass in shortcut, hot key, windowStyle
+                        emit('createBatchForShortcutCreation', {
+                            shortcutPath: ,
+                            profileName: ,
+                            templateName: ,
+                            iconPath: ,
+                            hotKey: ,
+                            windowStyle: ,
+                            description: templateName
+                        });
+
                         // $('.fileExtension').value // defaultFileExtension
                         // ftype assoc
                         // reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
