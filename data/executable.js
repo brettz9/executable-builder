@@ -522,15 +522,18 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Manage profiles'
                         ]]
                     ]],
-                    // Todo: Support custom modes if WebAppFind implements
                     ['label', [
                         'Mode: ',
-                        ['select', [
+                        ['select', {id: 'mode'}, [
                             ['option', {value: 'view'}, ['View']],
                             ['option', {value: 'binaryview'}, ['Binary view']],
                             ['option', {value: 'edit'}, ['Edit']],
                             ['option', {value: 'binaryedit'}, ['Binary edit']]
                         ]]
+                    ]],
+                    ['label', [
+                        'Custom mode: ',
+                        ['input', {id: 'customMode'}]
                     ]],
                     ['br'],
                     // Todo:
