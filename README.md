@@ -31,6 +31,8 @@ If one launches an AsYouWish app, one can utilize awareness of the supplied desk
 
 # Command line usage
 
+Once the add-on is installed, the following can be used in addition to Firefox's own flags.
+
 * `-execbuildopen` - Open the Executable Builder dialog.
 
 # Todos
