@@ -436,7 +436,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         
                         /*
                         // Todo: UI to pass in hot key, windowStyle, description? SED options?
-                        // Todo: Opt for batch vs. exe?
+                        // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
                         // Todo: Option to preserve shortcut
                         options = {
                             shortcutPath: ,
