@@ -29,6 +29,10 @@ a separate set of add-ons for each executable (and without the problem that all 
 
 If one launches an AsYouWish app, one can utilize awareness of the supplied desktop path and contents along with escalated privileges (see [WebAppFind](https://github.com/brettz9/webappfind) and [AsYouWish](https://github.com/brettz9/asyouwish/) for more, including the possibility for console-less batch-like operations).
 
+# Command line usage
+
+* `-execbuildopen` - Open the Executable Builder dialog.
+
 # Todos
 
 1. IMPORTANT: Upgrade my quick-and-dirty, ironically non-concern-separated data files approach in favor of some kind of data-only form serialization (in case fields change), e.g., https://github.com/macek/jquery-serialize-object
