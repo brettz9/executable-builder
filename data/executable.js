@@ -261,6 +261,20 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             }
         });
 
+        function modifierKey (e) { // Windows only allows ctrl+alt+XX for a shortcut; otherwise, we could use https://gist.github.com/brettz9/8661692
+            var target = e.target;
+            // The following are disallowed in Windows shortcuts: Esc, Enter, Tab, Spacebar, PrtScn, Shift, or Backspace (see http://windows.microsoft.com/en-hk/windows/create-keyboard-shortcuts-open-programs#1TC=windows-7 )
+            // Not sure why in the extension, escape is not blanking out the prior value
+            if (
+                [27, 13, 9, 8].indexOf(e.keyCode) !== -1 || // Esc, Enter, Tab, or Backspace
+                [32].indexOf(e.charCode) !== -1 // Spacebar
+                // Shift and PrtScn don't trigger a keypress, so no need to check for them here
+            ) {
+                e.preventDefault();
+            }
+            target.value = '';
+        }
+
         window.addEventListener('change', function (e) {
             var val = e.target.value;
             if (e.target.id === 'templateName') {
@@ -435,17 +449,20 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         emit('saveExecutables', {templateName: templateName, exeNames: exeNames, dirPaths: dirPaths});
                         
                         /*
-                        // Todo: UI to pass in hot key, windowStyle, description? SED options?
+                        // Todo: UI to pass in description? SED options?
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
                         // Todo: Option to preserve shortcut
+
                         options = {
                             shortcutPath: ,
-                            profileName: ,
-                            iconPath: ,
-                            hotKey: ,
-                            windowStyle: ,
+                            profileName: $('#profileName').value,
+                            iconPath: $('#iconPath').value,
+                            windowStyle: $('#windowStyleSelect').value,
                             description: templateName
                         };
+                        if ($('#hotKey').value) {
+                            options.hotKey = 'ALT+CTRL+' + $('#hotKey').value.toUpperCase(); // We upper-case as Windows auto-upper-cases in the UI
+                        }
                         if () {
                             options.webappdoc = ; // Todo: Desktop or URL!
                         }
@@ -499,6 +516,31 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         createPathInput()
                     ]],
                     ['div', [
+                        ['label', [
+                            'Window style',
+                            ['select', {id: 'windowStyleSelect'}, [
+                                ['option', {
+                                    value: '1',
+                                    title: "Activates and displays a window. If the window is minimized or maximized, the system restores it to its original size and position."
+                                }, ["Activate - Restore from minimized/maximized"]],
+                                ['option', {
+                                    value: '3',
+                                    title: "Activates the window and displays it as a maximized window."
+                                }, ["Activate - Maximize on open"]],
+                                ['option', {
+                                    value: '7',
+                                    title: "Minimizes the window and activates the next top-level window."
+                                }, ["Minimize on open (and activate next top-level)"]]
+                            ]]
+                        ]],
+                        ['label', [
+                            'Global hot key combination to activate: ',
+                            ['input', {
+                                id: 'hotKey',
+                                $on: {keypress: modifierKey}
+                            }]
+                        ]],
+                        ['br'],
                         ['label', {'for': 'iconPath'}, [
                             'Icon path for the executable: '
                         ]],
