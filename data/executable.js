@@ -137,7 +137,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                                     ' \u00a0 ',
                                     ['label', {title: "Normally the batch file will be cleaned up when incorporated into an exe. This preserves it and will subsequently seek to use it."}, [
                                         "Preserve the batch file: ",
-                                        ['input', {'class': 'sedPreserve', dataset: {i: i}, type: 'checkbox'}]
+                                        ['input', {'class': 'batchPreserve', dataset: {i: i}, type: 'checkbox'}]
                                     ]]
                                 ]
                             ), target.nextElementSibling);
@@ -190,7 +190,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
     }
 
     // BEGIN EVENT ATTACHMENT
-    
+
     on('openOrCreateICOResponse', function (data) {
         alert(data);
     });
@@ -225,14 +225,14 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             datalist.appendChild(option);
         });
     });
-    
+
     on('deleteTemplateResponse', function (data) {
         $('#templates').remove([].slice.call($('#templates')).findIndex(function (option) {
             return option.text === data.fileName;
         }));
         alert(data.message);
     });
-    
+
     on('getTemplateResponse', function (data) {
         var dom = new DOMParser().parseFromString(data.content, 'application/xhtml+xml');
         // dom.documentElement.cloneNode(true);
@@ -255,9 +255,9 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         }
         alert(data.message);
     });
-    
+
     function init (templates) {
-        
+
         window.addEventListener('input', function (e) {
             var target = e.target,
                 id = target.id,
@@ -318,7 +318,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 // The following are disallowed in Windows shortcuts: Esc, Enter, Tab, Spacebar, PrtScn, Shift, or Backspace (see http://windows.microsoft.com/en-hk/windows/create-keyboard-shortcuts-open-programs#1TC=windows-7 )
                 e.charCode === 32 || // Space bar is found here
                 [27, 13, 9, 32, 44, 16, 8, // Esc, Enter, Tab, Spacebar, PrtScn, Shift, Backspace (we really only need for space, enter, tab, and backspace here as the others don't do anything with keypress)
-                    46, 35, 36, 33, 34, 37, 38, 39, 40, 93 // also prevent Del, End, Home, PgUp, PgDown, Arrows (left, up, right, down), ?, 
+                    46, 35, 36, 33, 34, 37, 38, 39, 40, 93 // also prevent Del, End, Home, PgUp, PgDown, Arrows (left, up, right, down), ?
                 ].indexOf(e.keyCode) !== -1
             ) {
                 e.target.value = '';
@@ -349,8 +349,21 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         
         // Todo: Support keypress
         window.addEventListener('click', function (e) {
+            function toValue (item) {
+                return item.value;
+            }
+            function toCheckedValue (prev, pinApp) {
+                prev[pinApp.dataset.i] = pinApp.checked;
+                return prev;
+            }
+            function reduceCheckedValue (sel) {
+                return toArray($$(sel)).reduce(toCheckedValue, {});
+            }
+            function reduceValue (sel) {
+                return toArray($$(sel)).map(toValue);
+            }
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                keyEv, options, exeNames, dirPaths, preserveShortcuts, pinApps,
+                keyEv, options, executableNames, dirPaths, preserveShortcuts, pinApps, convertToExes, sedPreserves, batchPreserves,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -361,13 +374,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset && e.target.parentNode.dataset.pathBoxSelect),
                 pathInputID = dataset.pathInputID;
 
-            function toValue (item) {
-                return item.value;
-            }
-            function toPinAppValue (prev, pinApp) {
-                prev[pinApp.dataset.i] = pinApp.checked;
-                return prev;
-            }
             if (dirPick) {
                 // Value can be blank (if user just wishes to browse)
                 emit('dirPick', {
@@ -479,10 +485,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     case 'manageProfiles':
                         emit('manageProfiles');
                         break;
-                    case 'runCommands':
-                        // Todo: implement
-                        alert('to implement');
-                        break;
                     case 'createExecutable':
                         // Todo: Auto-name executable and auto-add path by default
                         if (!$('.executableName').value) {
@@ -493,6 +495,8 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             alert("You must supply a path for your executable");
                             return;
                         }
+                        // Fall-through
+                    case 'runCommands':
                         templateName = $('#templateName').value;
                         if ($('#rememberTemplateChanges').checked &&
                             templateName !== '') {
@@ -507,18 +511,23 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             });
                         }
 
-                        exeNames = toArray($$('.executableName')).map(toValue);
-                        dirPaths = toArray($$('.dirPath')).map(toValue);
-                        preserveShortcuts = toArray($$('.preserveShortcut')).map(toValue);
-                        pinApps = toArray($$('.pinApp')).reduce(toPinAppValue, {});
-                        
-                        // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
+                        executableNames = reduceValue('.executableName');
+                        dirPaths = reduceValue('.dirPath');
+                        preserveShortcuts = reduceValue('.preserveShortcut');
+                        convertToExes = reduceValue('.convertToExe');
+
+                        pinApps = reduceCheckedValue('.pinApp');
+                        sedPreserves = reduceCheckedValue('.sedPreserve');
+                        batchPreserves = reduceCheckedValue('.batchPreserve');
 
                         options = {
-                            exeNames: exeNames,
+                            executableNames: executableNames,
                             dirPaths: dirPaths,
                             preserveShortcuts: preserveShortcuts,
+                            convertToExes: convertToExes,
                             pinApps: pinApps,
+                            sedPreserves: sedPreserves,
+                            batchPreserves: batchPreserves,
                             templateName: templateName || null,
                             description: $('#description').value || '',
                             profileName: $('#profileName').value || null,
@@ -784,18 +793,18 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     ]],
                     ['br'],
                     ['button', {id: 'createExecutable'}, [
-                       'Create executable(s) (and a profile if specified above and not yet existing)'
+                       'Create executable(s) and save template'
                     ]],
                     ' \u00a0 ',
                     ['button', {id: 'runCommands'}, [
-                       'Run commands'
+                       'Run commands and save template'
                     ]]
                 ]]
             ],
             null
         ));
     }
-    
+
     // We could abstract this, but it's light enough for now to keep flexible
     on('getHardPathsResponse', function (pathData) {
         paths = pathData;
