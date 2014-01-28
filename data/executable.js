@@ -65,6 +65,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         Todos:
         1. Associate file extensions to file type, and file type to executable: ftype/assoc
         1. Make as default (or only use with open with...)); OpenWithProgids ?
+        1. reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
         1. List all file types in pull-down in case someone wants to create an explicit file type for a given extension (or just a file type in case the registry already handles extension-to-type associations) ("assoc" for all <.fileext>=<filetype>, "assoc + <filetype>" to get <.fileext>=<long name>; "ftype" for all <filetype>="<exe path>" %1, etc.)
         1. List all existing extension-to-type associations, extension-to-long-name, type-to-exe, or extension-to-exe
         1. See discussion on icons below for app ID association (and adding to recent docs or jump list customization)
@@ -469,11 +470,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         emit('saveExecutables', options);
 
                         // $('.fileExtension').value // defaultFileExtension
-                        // ftype assoc
-                        // reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
                         // emit('associateFileExtension');
-
-
                         /*emit('cmd', {args: [], observe: function () {
                             alert('Command run!');
                         }});*/
