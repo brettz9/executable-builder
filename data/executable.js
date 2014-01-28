@@ -461,11 +461,12 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             iconPath: $('#iconPath').value || null,
                             windowStyle: $('#windowStyleSelect').value || null,
                             hotKey: $('#hotKey').value || null,
+                            webappurl: $('#urlBox').value || null,
                             webappmode: $('#mode').value || null,
                             webappcustommode: $('#customMode').value || null,
                             webappdoc: $('#desktopFilePath').value ||
-                                                    $('#documentURLBox').value || // Todo: convert to native path if in file:// form
-                                                        null // Todo: Support URLs in WebAppFind!
+                                                    $('#documentURLBox').value ||
+                                                        null
                         };
 
                         emit('saveExecutables', options);
