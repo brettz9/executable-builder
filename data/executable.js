@@ -120,6 +120,33 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     'Preserve shortcut after execution: ',
                     ['input', {type: 'checkbox', 'class': 'preserveShortcut'}]
                 ]],
+                ' \u00a0 ',
+                ['label', {'for': 'convertToExe' + i}, [
+                    'Change batch to exe: '
+                ]],
+                ['input', {type: 'checkbox', id: 'convertToExe' + i, 'class': 'convertToExe', $on: {click: (function (i) {
+                    return function (e) {
+                        var target = e.target;
+                        if (target.checked) {
+                            target.parentNode.insertBefore(jml(
+                                'div', {'class': 'sedPreserveHolder'}, [
+                                    ['label', {title: "Normally a SED file will be added and then removed. This option preserves it and will subsequently seek to use it."}, [
+                                        "Preserve the SED file: ",
+                                        ['input', {'class': 'sedPreserve', dataset: {i: i}, type: 'checkbox'}]
+                                    ]],
+                                    ' \u00a0 ',
+                                    ['label', {title: "Normally the batch file will be cleaned up when incorporated into an exe. This preserves it and will subsequently seek to use it."}, [
+                                        "Preserve the batch file: ",
+                                        ['input', {'class': 'sedPreserve', dataset: {i: i}, type: 'checkbox'}]
+                                    ]]
+                                ]
+                            ), target.nextElementSibling);
+                        }
+                        else {
+                            target.parentNode.removeChild(target.nextElementSibling);
+                        }
+                    };
+                }(i))}}],
                 ['br'],
                 ['label', {'for': 'pathBox' + i}, [
                     'Directory where the executable will be saved: '
