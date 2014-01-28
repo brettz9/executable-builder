@@ -261,18 +261,20 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             }
         });
 
-        function modifierKey (e) { // Windows only allows ctrl+alt+XX for a shortcut; otherwise, we could use https://gist.github.com/brettz9/8661692
-            var target = e.target;
-            // The following are disallowed in Windows shortcuts: Esc, Enter, Tab, Spacebar, PrtScn, Shift, or Backspace (see http://windows.microsoft.com/en-hk/windows/create-keyboard-shortcuts-open-programs#1TC=windows-7 )
-            // Not sure why in the extension, escape is not blanking out the prior value
+
+        function modifierKeypress (e) {
+            // Windows only allows ctrl+alt+XX for a shortcut; otherwise, we could use https://gist.github.com/brettz9/8661692
             if (
-                [27, 13, 9, 8].indexOf(e.keyCode) !== -1 || // Esc, Enter, Tab, or Backspace
-                [32].indexOf(e.charCode) !== -1 // Spacebar
-                // Shift and PrtScn don't trigger a keypress, so no need to check for them here
+                // The following are disallowed in Windows shortcuts: Esc, Enter, Tab, Spacebar, PrtScn, Shift, or Backspace (see http://windows.microsoft.com/en-hk/windows/create-keyboard-shortcuts-open-programs#1TC=windows-7 )
+                e.charCode === 32 || // Space bar is found here
+                [27, 13, 9, 32, 44, 16, 8].indexOf(e.keyCode) !== -1 // Esc, Enter, Tab, Spacebar, PrtScn, Shift, Backspace (we really only need for space, enter, tab, and backspace here as the others don't do anything with keypress)
             ) {
-                e.preventDefault();
+                e.target.value = '';
             }
-            target.value = '';
+            else {
+                e.target.value = 'ALT+CTRL+' + String.fromCharCode(e.charCode).toUpperCase(); // We upper-case as Windows auto-upper-cases in the UI
+            }
+            e.preventDefault();
         }
 
         window.addEventListener('change', function (e) {
@@ -461,7 +463,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             description: templateName
                         };
                         if ($('#hotKey').value) {
-                            options.hotKey = 'ALT+CTRL+' + $('#hotKey').value.toUpperCase(); // We upper-case as Windows auto-upper-cases in the UI
+                            options.hotKey = $('#hotKey').value
                         }
                         if () {
                             options.webappdoc = ; // Todo: Desktop or URL!
@@ -537,7 +539,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Global hot key combination to activate: ',
                             ['input', {
                                 id: 'hotKey',
-                                $on: {keypress: modifierKey}
+                                $on: {keypress: modifierKeypress}
                             }]
                         ]],
                         ['br'],
