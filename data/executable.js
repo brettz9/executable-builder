@@ -246,6 +246,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     target.parentNode.removeChild(target.nextElementSibling);
                 }
                 if (val === getHardPath('TaskBar')) {
+                    // Todo: Possible to allow pinning to task bar without saving the executable/batch there?
                     target.parentNode.insertBefore(jml(
                         'div', {'class': 'pinAppHolder'}, [
                             ['label', {title: "While on the task bar, a desktop file or URL can be drag-and-dropped onto it if the executable is dynamic or a specific one if the document is baked into the executable"}, [
