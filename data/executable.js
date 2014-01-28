@@ -428,6 +428,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     case 'manageProfiles':
                         emit('manageProfiles');
                         break;
+                    case 'runCommands':
+                        // Todo: implement
+                        alert('to implement');
+                        break;
                     case 'createExecutable':
                         // Todo: Auto-name executable and auto-add path by default
                         if (!$('.executableName').value) {
@@ -729,6 +733,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     ['br'],
                     ['button', {id: 'createExecutable'}, [
                        'Create executable(s) (and a profile if specified above and not yet existing)'
+                    ]],
+                    ' \u00a0 ',
+                    ['button', {id: 'runCommands'}, [
+                       'Run commands'
                     ]]
                 ]]
             ],
