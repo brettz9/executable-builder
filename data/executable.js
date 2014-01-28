@@ -228,9 +228,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
     function init (templates) {
         
         window.addEventListener('input', function (e) {
-            var id = e.target.id,
-                val = e.target.value,
-                dataset = e.target.dataset,
+            var target = e.target,
+                id = target.id,
+                val = target.value,
+                dataset = target.dataset,
                 pathBoxInput = dataset.pathBoxInput;
 
             if (!val) {
@@ -239,9 +240,12 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             if (pathBoxInput) {
                 emit('autocompleteValues', {
                     value: val,
-                    listID: e.target.getAttribute('list'),
+                    listID: target.getAttribute('list'),
                     dirOnly: true
                 });
+            }
+            else if (id === 'customMode') {
+                target.value = target.value.replace(/[^a-z]/, '');
             }
             else if (id === 'urlBox' || id === 'documentURLBox') {
                 /*
@@ -251,13 +255,13 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 */
                 emit('autocompleteURLHistory', {
                     value: val,
-                    listID: e.target.getAttribute('list')
+                    listID: target.getAttribute('list')
                 });
             }
             else if (id === 'desktopFilePath' || id === 'iconPath') {
                 emit('autocompleteValues', {
                     value: val,
-                    listID: e.target.getAttribute('list')
+                    listID: target.getAttribute('list')
                 });
             }
         });
