@@ -1,5 +1,5 @@
 /*globals self, jml, XMLSerializer, DOMParser */
-/*jslint todo:true, sloppy: true*/
+/*jslint todo:true, sloppy: true, regexp: true*/
 /*
 Info:
 1. On building profile dir. for executables, see http://stackoverflow.com/questions/18711327/programmatically-create-firefox-profiles
@@ -251,7 +251,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         'div', {'class': 'pinAppHolder'}, [
                             ['label', {title: "While on the task bar, a desktop file or URL can be drag-and-dropped onto it if the executable is dynamic or a specific one if the document is baked into the executable"}, [
                                 "Pin app to task bar: ",
-                                ['input', {id: 'pinApp', type: 'checkbox'}]
+                                ['input', {'class': 'pinApp', dataset: {i: pathBoxInput}, type: 'checkbox'}]
                             ]]
                         ]
                     ), target.nextElementSibling);
@@ -323,7 +323,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         // Todo: Support keypress
         window.addEventListener('click', function (e) {
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                keyEv, options, exeNames, dirPaths, preserveShortcuts,
+                keyEv, options, exeNames, dirPaths, preserveShortcuts, pinApps,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -336,6 +336,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
             function toValue (item) {
                 return item.value;
+            }
+            function toPinAppValue (prev, pinApp) {
+                prev[pinApp.dataset.i] = pinApp.checked;
+                return prev;
             }
             if (dirPick) {
                 // Value can be blank (if user just wishes to browse)
@@ -479,6 +483,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         exeNames = toArray($$('.executableName')).map(toValue);
                         dirPaths = toArray($$('.dirPath')).map(toValue);
                         preserveShortcuts = toArray($$('.preserveShortcut')).map(toValue);
+                        pinApps = toArray($$('.pinApp')).reduce(toPinAppValue, {});
                         
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
 
@@ -486,6 +491,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             exeNames: exeNames,
                             dirPaths: dirPaths,
                             preserveShortcuts: preserveShortcuts,
+                            pinApps: pinApps,
                             templateName: templateName || null,
                             description: $('#description').value || '',
                             profileName: $('#profileName').value || null,
