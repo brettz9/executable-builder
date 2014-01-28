@@ -457,23 +457,17 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
                         options = {
                             shortcutPath: ,
-                            profileName: $('#profileName').value,
-                            iconPath: $('#iconPath').value,
-                            windowStyle: $('#windowStyleSelect').value,
+                            profileName: $('#profileName').value || null,
+                            iconPath: $('#iconPath').value || null,
+                            windowStyle: $('#windowStyleSelect').value || null,
                             description: templateName
                         };
-                        if ($('#hotKey').value) {
-                            options.hotKey = $('#hotKey').value
-                        }
+                        options.hotKey = $('#hotKey').value || null;
                         if () {
                             options.webappdoc = ; // Todo: Desktop or URL!
                         }
-                        if () {
-                            options.webappmode = ;
-                        }
-                        if () {
-                            options.webappcustommode = ;
-                        }
+                        options.webappmode = $('#mode').value || null;
+                        options.webappcustommode = $('#customMode').value || null;
 
                         emit('createBatchForShortcutCreation', options);
 
