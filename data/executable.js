@@ -42,6 +42,9 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
     function $$ (sel) {
         return document.querySelectorAll(sel);
     }
+    function toArray (arrLikeObj) {
+        return [].slice.call(arrLikeObj);
+    }
     function templateExistsInMenu (val) {
         return [].slice.call($('#templates')).some(function (option) {
             return option.text === val;
@@ -69,7 +72,8 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         1. List all file types in pull-down in case someone wants to create an explicit file type for a given extension (or just a file type in case the registry already handles extension-to-type associations) ("assoc" for all <.fileext>=<filetype>, "assoc + <filetype>" to get <.fileext>=<long name>; "ftype" for all <filetype>="<exe path>" %1, etc.)
         1. List all existing extension-to-type associations, extension-to-long-name, type-to-exe, or extension-to-exe
         1. See discussion on icons below for app ID association (and adding to recent docs or jump list customization)
-        1. Optionally pin apps programmatically to task bar (when task bar path is chosen)
+        1. Optionally pin apps programmatically to task bar (when task bar path is chosen), supporting dragging and dropping to it or requiring a hard-coded document path/URL
+        1. Support drag-and-drop of files to this dialog (to supply document path or URL if it is a URL)
         */
         var i = ++ctr;
         return ['div', {id: 'fileExtensionInfoHolder' + i}, [
@@ -238,6 +242,19 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 return;
             }
             if (pathBoxInput) {
+                if (toArray(target.nextElementSibling.classList).indexOf('pinAppHolder') > -1) {
+                    target.parentNode.removeChild(target.nextElementSibling);
+                }
+                if (val === getHardPath('TaskBar')) {
+                    target.parentNode.insertBefore(jml(
+                        'div', {'class': 'pinAppHolder'}, [
+                            ['label', {title: "While on the task bar, a desktop file or URL can be drag-and-dropped onto it if the executable is dynamic or a specific one if the document is baked into the executable"}, [
+                                "Pin app to task bar: ",
+                                ['input', {id: 'pinApp', type: 'checkbox'}]
+                            ]]
+                        ]
+                    ), target.nextElementSibling);
+                }
                 emit('autocompleteValues', {
                     value: val,
                     listID: target.getAttribute('list'),
@@ -302,9 +319,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             }
         });
         
+        // Todo: Support keypress
         window.addEventListener('click', function (e) {
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                options, exeNames, dirPaths, preserveShortcuts,
+                keyEv, options, exeNames, dirPaths, preserveShortcuts,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -315,9 +333,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 pathBoxSelect = dataset.pathBoxSelect || (e.target.parentNode && e.target.parentNode.dataset && e.target.parentNode.dataset.pathBoxSelect),
                 pathInputID = dataset.pathInputID;
 
-            function toArray (arrLikeObj) {
-                return [].slice.call(arrLikeObj);
-            }
             function toValue (item) {
                 return item.value;
             }
@@ -354,6 +369,10 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     return;
                 }
                 $('#pathBox' + pathBoxSelect).value = val;
+                // We need the input event to go off so as to display the checkbox if this is the task bar
+                keyEv = document.createEvent('KeyboardEvent');
+                keyEv.initKeyEvent('input', true, true, document.defaultView, false, false, false, false, 13, 0);
+                $('#pathBox' + pathBoxSelect).dispatchEvent(keyEv);
             }
             else if (fileExtensionID) {
                 holderID = 'fileExtensionInfoHolder' + fileExtensionID;
@@ -460,7 +479,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         dirPaths = toArray($$('.dirPath')).map(toValue);
                         preserveShortcuts = toArray($$('.preserveShortcut')).map(toValue);
                         
-                        // Todo: To UI: Optionally pin apps programmatically to task bar (when task bar path is chosen); allow drag and drop to it or hard-coded
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
 
                         options = {
