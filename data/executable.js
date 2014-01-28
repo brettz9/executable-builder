@@ -447,35 +447,34 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
                         exeNames = toArray($$('.executableName')).map(toValue);
                         dirPaths = toArray($$('.dirPath')).map(toValue);
-
-                        emit('saveExecutables', {templateName: templateName, exeNames: exeNames, dirPaths: dirPaths});
                         
-                        /*
-                        // Todo: UI to pass in description? SED options?
+                        // Todo: UI to pass in SED options?
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
                         // Todo: Option to preserve shortcut
 
                         options = {
-                            shortcutPath: ,
+                            exeNames: exeNames,
+                            dirPaths: dirPaths,
+                            templateName: templateName || null,
+                            description: $('#description').value || '',
                             profileName: $('#profileName').value || null,
                             iconPath: $('#iconPath').value || null,
                             windowStyle: $('#windowStyleSelect').value || null,
-                            description: templateName
+                            hotKey: $('#hotKey').value || null,
+                            webappmode: $('#mode').value || null,
+                            webappcustommode: $('#customMode').value || null,
+                            webappdoc: $('#desktopFilePath').value ||
+                                                    $('#documentURLBox').value || // Todo: convert to native path if in file:// form
+                                                        null // Todo: Support URLs in WebAppFind!
                         };
-                        options.hotKey = $('#hotKey').value || null;
-                        if () {
-                            options.webappdoc = ; // Todo: Desktop or URL!
-                        }
-                        options.webappmode = $('#mode').value || null;
-                        options.webappcustommode = $('#customMode').value || null;
 
-                        emit('createBatchForShortcutCreation', options);
+                        emit('saveExecutables', options);
 
                         // $('.fileExtension').value // defaultFileExtension
                         // ftype assoc
                         // reg query (add?) HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.svg\OpenWithList
-                        emit('associateFileExtension');
-                        */
+                        // emit('associateFileExtension');
+
 
                         /*emit('cmd', {args: [], observe: function () {
                             alert('Command run!');
@@ -506,6 +505,11 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         'Template name: ',
                         ['input', {id: 'templateName'}]
                     ]],
+                    ' \u00a0 ',
+                    ['label', [
+                        'Description: ',
+                        ['input', {id: 'description'}]
+                    ]],
                     ['fieldset', {id: 'pathHolder'}, [
                         ['legend', ['Executable directory(ies)']],
                         ['datalist', {id: 'datalist'}],
@@ -529,6 +533,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                                 }, ["Minimize on open (and activate next top-level)"]]
                             ]]
                         ]],
+                        ' \u00a0 ',
                         ['label', [
                             'Global hot key combination to activate: ',
                             ['input', {
