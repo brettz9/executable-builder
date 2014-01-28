@@ -267,7 +267,9 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
             if (
                 // The following are disallowed in Windows shortcuts: Esc, Enter, Tab, Spacebar, PrtScn, Shift, or Backspace (see http://windows.microsoft.com/en-hk/windows/create-keyboard-shortcuts-open-programs#1TC=windows-7 )
                 e.charCode === 32 || // Space bar is found here
-                [27, 13, 9, 32, 44, 16, 8].indexOf(e.keyCode) !== -1 // Esc, Enter, Tab, Spacebar, PrtScn, Shift, Backspace (we really only need for space, enter, tab, and backspace here as the others don't do anything with keypress)
+                [27, 13, 9, 32, 44, 16, 8, // Esc, Enter, Tab, Spacebar, PrtScn, Shift, Backspace (we really only need for space, enter, tab, and backspace here as the others don't do anything with keypress)
+                    46, 35, 36, 33, 34, 37, 38, 39, 40, 93 // also prevent Del, End, Home, PgUp, PgDown, Arrows (left, up, right, down), ?, 
+                ].indexOf(e.keyCode) !== -1
             ) {
                 e.target.value = '';
             }
