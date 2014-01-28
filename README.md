@@ -104,6 +104,10 @@ location along with the other file data, etc.)
 1. Demo todos
     1. Demo dogfooding reading/editing our special file type once separation-of-concerns/serialize to-do is complete (so it could be handled by other apps as with any other WebAppFind file) though would need AYW for privileges (as also could do with SVG icons when done)
 
-# Apprecation
+# Possible todos
+
+1. If there is any advantage to expanding SED options, or if we implement some more robust way to handle exe building, e.g., so as to be able to include an icon without creating a shortcut, we may expand the current UI to handle this.
+
+# Appreciation
 
 A special thanks to [Imgen Tata](http://www.pdfbatch.com/) for fielding Windows questions.

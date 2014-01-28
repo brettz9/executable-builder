@@ -460,7 +460,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         dirPaths = toArray($$('.dirPath')).map(toValue);
                         preserveShortcuts = toArray($$('.preserveShortcut')).map(toValue);
                         
-                        // Todo: UI to pass in SED options? To UI: Optionally pin apps programmatically to task bar (when task bar path is chosen); allow drag and drop to it or hard-coded
+                        // Todo: To UI: Optionally pin apps programmatically to task bar (when task bar path is chosen); allow drag and drop to it or hard-coded
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
 
                         options = {
