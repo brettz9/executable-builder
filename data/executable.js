@@ -68,6 +68,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         1. List all file types in pull-down in case someone wants to create an explicit file type for a given extension (or just a file type in case the registry already handles extension-to-type associations) ("assoc" for all <.fileext>=<filetype>, "assoc + <filetype>" to get <.fileext>=<long name>; "ftype" for all <filetype>="<exe path>" %1, etc.)
         1. List all existing extension-to-type associations, extension-to-long-name, type-to-exe, or extension-to-exe
         1. See discussion on icons below for app ID association (and adding to recent docs or jump list customization)
+        1. Optionally pin apps programmatically to task bar (when task bar path is chosen)
         */
         var i = ++ctr;
         return ['div', {id: 'fileExtensionInfoHolder' + i}, [
@@ -113,7 +114,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 ['label', {'for': 'pathBox' + i}, [
                     'Directory where the executable will be saved: '
                 ]],
-                // Todo: Optionally pin apps programmatically to task bar (when task bar path is chosen)
                 ['input', {
                     type: 'text', id: 'pathBox' + i, list: 'datalist', autocomplete: 'off',
                     required: 'true', size: 100, value: '', dataset: {pathBoxInput: i},
@@ -124,10 +124,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                 ]],
                 ' or ',
                 ['select', {dataset: {pathBoxSelect: i}}, [
-                    // Todo: Change for other OSes
-                    // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
-                    // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
-                    // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
                     ['option', {value: ''}, ['(Or choose a location)']],
                     ['option', {value: getHardPath('Executable')}, ['Executable folder within profile folder']],
                     ['option', {value: getHardPath('Desk')}, ['Desktop']],
@@ -136,7 +132,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     ['option', {value: getHardPath('TaskBar')}, ['Task bar']],
                     ['option', {value: getHardPath('ProfD')}, ['Profile folder']],
                     ['option', {value: getHardPath('Programs')}, ['Programs']]
-                    // Before Win7: C:\Documents and Settings\UserName\Application Data\Microsoft\Internet Explorer\Quick Launch
                 ]],
                 createRevealButton('#pathBox' + i),
                 ['button', {dataset: {pathInputID: i, type: 'add'}}, [
@@ -450,7 +445,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         exeNames = toArray($$('.executableName')).map(toValue);
                         dirPaths = toArray($$('.dirPath')).map(toValue);
                         
-                        // Todo: UI to pass in SED options?
+                        // Todo: UI to pass in SED options? To UI: Optionally pin apps programmatically to task bar (when task bar path is chosen)
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
                         // Todo: Option to preserve shortcut
 
@@ -549,10 +544,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Icon path for the executable: '
                         ]],
                         ['select', {id: 'iconPathSelect'}, [
-                            // Todo: Change for other OSes
-                            // https://developer.mozilla.org/en-US/docs/Code_snippets/File_I_O#Getting_files_in_special_directories
-                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsAppDirectoryServiceDefs.h
-                            // http://mxr.mozilla.org/mozilla-central/source/xpcom/io/nsDirectoryServiceDefs.h
                             ['option', {value: ''}, ['(Choose a location)']],
                             ['option', {value: getHardPath('Desk')}, ['Desktop']],
                             ['option', {value: getHardPath('Pict')}, ['Pictures']],
@@ -598,7 +589,6 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                             'Hard-coded desktop file: '
                         ]],
                         ['select', {id: 'desktopFilePathSelect'}, [
-                            // Todo: Change for other OSes? (see links above)
                             ['option', {value: ''}, ['(Choose a location)']],
                             ['option', {value: getHardPath('Docs')}, ['Documents']],
                             ['option', {value: getHardPath('Desk')}, ['Desktop']]
