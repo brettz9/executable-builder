@@ -111,6 +111,11 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                     'Executable name: ',
                     ['input', {required: 'true', 'class': 'executableName'}]
                 ]],
+                ' \u00a0 ',
+                ['label', [
+                    'Preserve shortcut after execution: ',
+                    ['input', {type: 'checkbox', 'class': 'preserveShortcut'}]
+                ]],
                 ['br'],
                 ['label', {'for': 'pathBox' + i}, [
                     'Directory where the executable will be saved: '
@@ -295,7 +300,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
         
         window.addEventListener('click', function (e) {
             var holderID, parentHolderSel, input, nextSibling, selVal, templateName, ser, content,
-                options, exeNames, dirPaths,
+                options, exeNames, dirPaths, preserveShortcuts,
                 val = e.target.value,
                 dataset = e.target.dataset,
                 id = e.target.id,
@@ -445,14 +450,15 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 
                         exeNames = toArray($$('.executableName')).map(toValue);
                         dirPaths = toArray($$('.dirPath')).map(toValue);
+                        preserveShortcuts = toArray($$('.preserveShortcut')).map(toValue);
                         
                         // Todo: UI to pass in SED options? To UI: Optionally pin apps programmatically to task bar (when task bar path is chosen); allow drag and drop to it or hard-coded
                         // Todo: Opt for batch vs. exe? Preserve SED and batch if doing exe?
-                        // Todo: Option to preserve shortcut
 
                         options = {
                             exeNames: exeNames,
                             dirPaths: dirPaths,
+                            preserveShortcuts: preserveShortcuts,
                             templateName: templateName || null,
                             description: $('#description').value || '',
                             profileName: $('#profileName').value || null,
