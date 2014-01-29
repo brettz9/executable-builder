@@ -3,7 +3,8 @@
 /*
 Info:
 1. On building profile dir. for executables, see http://stackoverflow.com/questions/18711327/programmatically-create-firefox-profiles
-and possibly https://developer.mozilla.org/en-US/docs/Profile_Manager
+and possibly https://developer.mozilla.org/en-US/docs/Profile_Manager ; also might just
+use command line
 1. If need to convert PNG to ICO
     var imgTools = Components.classes["@mozilla.org/image/tools;1"].getService(Components.interfaces.imgITools);
     imgTools.encodeImage( , 'image/x-icon');
