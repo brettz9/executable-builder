@@ -26,7 +26,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
     }
     if (document.querySelector('body') && document.querySelector('body').innerHTML.match(/\S/)) { // Don't add page (or its listeners) more than once
         // l(body.innerHTML);
-        alert('already a body');
+        // alert('already a body'); // Happened with webappfind call
         return;
     }
 
