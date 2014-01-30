@@ -5,5 +5,5 @@
   "description": "Build executables to launch files, especially for use with WebAppFind",
   "author": "brettz9",
   "license": "MIT",
-  "version": "0.1"
+  "version": "0.1.0"
 }
