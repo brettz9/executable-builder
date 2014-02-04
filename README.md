@@ -1,6 +1,7 @@
 # executable-builder
 
-***NOTE: This project is not yet functional!!***
+***NOTE: This project is not yet functional!! (However, if you click the "Exec" icon in the add-on bar,
+the version in the master branch ought to allow the user-facing UI to be viewed.)***
 
 Executable Builder is a browser add-on (currently Firefox only) which allows for the building of desktop executables (currently Windows only) which can launch URLs and which are associated with their own icons.
 
