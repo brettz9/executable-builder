@@ -474,7 +474,8 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
                         sel = '#' + id.replace(/Pick$/, 'Path');
                         emit('filePick', {
                             dirPath: $(sel).value,
-                            selector: sel
+                            selector: sel,
+                            defaultExtension: 'ico' // Todo: Fix for desktopFilePick
                         });
                         break;
                     case 'openOrCreateICO':
