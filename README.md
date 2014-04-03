@@ -132,6 +132,7 @@ onto batch icon as another option?
 
 # Possible todos
 
+1. Complete i18n work
 1. Support direct integration of commands into
 [atyourcommand](https://github.com/brettz9/atyourcommand)
 1. Ability to manage previously added items (including if added to
