@@ -73,7 +73,7 @@ the possibility for console-less batch-like operations).
 Once the add-on is installed, the following can be used in calls to
 Firefox in addition to Firefox's own flags.
 
-* `-execbuildopen` - Open the Executable Builder dialog.
+- `-execbuildopen` - Open the Executable Builder dialog.
 
 It is hoped that additional command line options will be added which
 can cover the entire range of functionality available in the UI.
