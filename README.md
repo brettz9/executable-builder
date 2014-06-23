@@ -180,9 +180,6 @@ not, open a specific or vice versa? (?)
     handled by other apps as with any other WebAppFind file) though
     would need AYW for privileges (as also could do with SVG icons
     when done)
-
-# Possible todos
-
 1. If there is any advantage to expanding SED options, or if we implement
 some more robust way to handle exe building, e.g., so as to be able to
 include an icon without creating a shortcut, we may expand the current

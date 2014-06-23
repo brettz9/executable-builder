@@ -17,7 +17,25 @@ Todos:
 1. Build command line output including path flag
     1. Use command line http://www.registryonwindows.com/registry-command-line.php (invokable
 from FF add-on) to add to registry re: open-with values or use js-ctypes or command line
-for integrating with deeper Windows (and Linux) functionality? e.g., adding items for "open with"
+for integrating with deeper Windows (and Linux) functionality? e.g., adding items for "open with"?
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/cc144158%28v=vs.85%29.aspx
+			1. See http://www.enzinger.net/en/FileAsso.html regarding SHChangeNotify SHCNE_ASSOCCHANGED to avoid need for restart!
+			1. Use DefaultIcon instead of building a shortcut?
+		1. http://stackoverflow.com/questions/21082752/ftype-assoc-priority-and-adding-to-openwithlist-from-the-command-line/24343882?iemail=1&noredirect=1#24343882
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/cc144148%28v=vs.85%29.aspx#fa_optional_keys_attributes
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/hh127445%28v=vs.85%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/bb166549%28v=vs.80%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/bb166181%28v=vs.80%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/bb165967%28v=vs.80%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/cc144152%28v=vs.85%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/hh127451%28v=vs.85%29.aspx
+		1. http://msdn.microsoft.com/en-us/library/aa911706.aspx
+		1. http://msdn.microsoft.com/en-us/library/windows/desktop/cc144156%28v=vs.85%29.aspx
+		1. example: http://msdn.microsoft.com/en-us/library/bb165967.aspx
+		1. http://vim.wikia.com/wiki/Windows_file_associations
+		1. http://vim.wikia.com/wiki/Launch_files_in_new_tabs_under_Windows#Using_File_Associations
+		1. http://ss64.com/nt/reg.html
+		1. http://superuser.com/a/700773/156958 ?
 1. Search for other "todo" instances below
 */
 (function () {
