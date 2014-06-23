@@ -37,6 +37,8 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 		1. http://ss64.com/nt/reg.html
 		1. http://superuser.com/a/700773/156958 ?
 		1. Option to associate with Windows "verbs" (i.e., Open, Edit, Print, Play, Preview or custom): http://msdn.microsoft.com/en-us/library/bb165967.aspx
+		1. Avoid need for separate batch by specifying executable and path
+		with needed command line options in registry?
 1. Search for other "todo" instances below
 */
 (function () {
