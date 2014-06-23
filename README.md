@@ -125,6 +125,9 @@ http://stackoverflow.com/questions/6852833/running-a-batch-script-by-right-click
 and cf. to drag-and-drop into browser; allow drag-and-drop of files onto
 add-on icon for processing similar to C++-based right-click? Drag files
 onto batch icon as another option?
+1. Save to SendTo folder (see [here](http://superuser.com/a/722699/156958)
+and [here](http://answers.microsoft.com/en-us/windows/forum/windows_vista-desktop/how-to-locate-the-sendto-folder-in-vista/78b16711-1135-4eb0-851a-8abae9bfe9ed)
+also for working with folders.
 
 # Planned future todos
 
