@@ -36,6 +36,7 @@ for integrating with deeper Windows (and Linux) functionality? e.g., adding item
 		1. http://vim.wikia.com/wiki/Launch_files_in_new_tabs_under_Windows#Using_File_Associations
 		1. http://ss64.com/nt/reg.html
 		1. http://superuser.com/a/700773/156958 ?
+		1. Option to associate with Windows "verbs" (i.e., Open, Edit, Print, Play, Preview or custom): http://msdn.microsoft.com/en-us/library/bb165967.aspx
 1. Search for other "todo" instances below
 */
 (function () {
