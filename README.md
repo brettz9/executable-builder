@@ -106,6 +106,7 @@ want to share again so as to allow independent executable)
 cannot be set through the normal Windows UI as with "Open With") such
 as allowing a web app to read batch files:
 http://windowsitpro.com/windows-server/how-can-i-change-editor-used-edit-batchcommand-files
+1. Profile building: <http://stackoverflow.com/a/22752481/271577>
 
 # Other dependent read-me todos:
 
