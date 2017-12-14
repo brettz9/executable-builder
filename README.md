@@ -1,5 +1,7 @@
 # executable-builder
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/brettz9/executable-builder.svg)](https://greenkeeper.io/)
+
 ***NOTE: This project is not yet functional!! (However, if you
 click the "Exec" icon in the add-on bar, the version in the master
 branch ought to allow the user-facing UI to be viewed.)***
