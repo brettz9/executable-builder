@@ -1,6 +1,9 @@
 # executable-builder
 
-***NOTE: This project is not yet functional!! (However, if you
+***NOTE: This project is currently being merged into
+[WebAppFind](https://github.com/brettz9/webappfind)***
+
+***NOTE: This project is not functional!! (However, if you
 click the "Exec" icon in the add-on bar, the version in the master
 branch ought to allow the user-facing UI to be viewed.)***
 
